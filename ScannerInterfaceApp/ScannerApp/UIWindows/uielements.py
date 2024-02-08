@@ -1,16 +1,44 @@
 '''Custom child classes of QT widgets so custom slots can be added'''
 from PyQt6 import QtCore, QtWidgets
-
+from .ConfirmUI import Ui_Dialog
 
 class PushButton(QtWidgets.QPushButton):
     '''Custom push button'''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-class Popup(QtWidgets.QDialog):
-    '''Popup dialog box'''
+class StatusBar(QtWidgets.QStatusBar):
+    '''Custom status bar'''
+    # status bar refresh inverval in seconds
+    __refresh_interval = 0.5
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # setup and run thread for updating status
+        self.__refresh_status()
+
+    @QtCore.pyqtSlot()
+    def __refresh_status(self):
+        '''Periodically refresh status bar'''
+        self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status}')
+        # call method again every tick of the app internal clock
+        # slightly delayed due to internal clock being init'd before statusbar obj
+        # print("Status bar refreshed!")
+        QtCore.QTimer.singleShot(int(self.__refresh_interval*1000), self.__refresh_status)
+
+
+class Popup(QtWidgets.QDialog):
+    '''Popup dialog box'''
+    def __init__(self, label_text:str, window_text: str, set_modal: bool, on_accept, on_reject, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setModal(set_modal)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+        self.ui.label.setText(label_text)
+        self.setWindowTitle(window_text)
+        if (on_accept != None): self.accepted.connect(on_accept)
+        if (on_reject != None): self.rejected.connect(on_reject)
+        self.exec()
 
 class StackedWidget(QtWidgets.QStackedWidget):
     '''Custom stacked widget'''
@@ -23,16 +51,26 @@ class Dialog(QtWidgets.QDialog):
         super().__init__(*args, **kwargs)
 
 class Table(QtWidgets.QTableWidget):
-    '''Custom table widget'''
-    default_headers = None
+    sorting_modes = [
+        'asc',
+        'desc',
+    ]
 
+    '''Custom table widget'''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    
-    def populate(self, scans: dict(dict())):
+        self.working_data = {} # init dict for holding data containing changes
+
+    def populate(self, reset: bool = False):
         ''' Populates table with values from passed list of dicts'''
+        '''TODO handle sorting on population'''
+        if reset:
+            self.working_data = self.window().scans
+       
+        scans = self.working_data
+
         if len(scans) == 0:
-            pass
+            return
         items = list(scans.values())
 
         # get number of columns from number of keys in either first or last item
@@ -41,16 +79,17 @@ class Table(QtWidgets.QTableWidget):
 
         chosen_keys = first_keys if len(first_keys) > len(last_keys) else last_keys
         # pick whichever item has more columns
-        new_len = len(chosen_keys)
-        if  new_len == 0:
-            pass
+        col_count = len(chosen_keys)
+        row_count = len(items)
+        if  col_count == 0:
+            return
         
         ### setup table columns        
         self.clear() # clear table contents and headers
-        self.setColumnCount(new_len) # set table column count to new column name
+        self.setColumnCount(col_count) # set table column count to new column name
 
         # iterate thru all columns of first item
-        for i in range(new_len):  
+        for i in range(col_count):  
             # init header item
             header = QtWidgets.QTableWidgetItem()
             # align text to v center 
@@ -60,7 +99,106 @@ class Table(QtWidgets.QTableWidget):
             # place new table widget item on table header
             self.setHorizontalHeaderItem(i, header)
 
-        ### populate rows
-        for item_dict in items:
-            
+        if row_count == 0:
+            # TODO indicate no rows present
+            return
 
+        # set row size of table to number of items to display
+        self.setRowCount(row_count)
+
+        ### populate rows
+        # iterate through all items 
+        for i in range(len(items)):
+            # key column keys for each item
+            keys = list(items[i].keys())
+            # iterate thru keys
+            for j in range(len(keys)):
+                # generate table item
+                cell = QtWidgets.QTableWidgetItem()
+                cell.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignVCenter) 
+                # assign value to cell
+                content = items[i][keys[j]]
+                cell.setText(str(content))
+                # place cell on table
+                self.setItem(i, j, cell)
+        
+        # TODO handle applying sorting
+
+        print("Scans table populated! Num Cols: ", self.columnCount(),"Num Rows: ", self.rowCount())
+    
+    @QtCore.pyqtSlot(int, int)
+    def update_scans(self, row, col):
+        '''Update working data with new cell value'''
+        new_value = self.item(row, col).text()
+        scans_vals = list(self.working_data.values())
+
+        # if adding new row
+        if row > len(scans_vals) - 1:
+            # if not adding new row by editing serial_no
+            if col != 0 and self.item(row, col -1).text() == (None or ""):
+                # TODO move selection over to serial_no
+                return
+            else: # if adding new row by editing serial_no
+                self.working_data[new_value] = scans_vals[-1].copy()
+                scans_vals = list(self.working_data.values())
+                targ_row = list(scans_vals)[row]
+                targ_col = list(targ_row.keys())[col]
+                self.working_data[new_value][targ_col] = new_value
+
+        scans_vals = list(self.working_data.values())
+        targ_row = scans_vals[row]
+        targ_col = list(targ_row.keys())[col]
+        targ_key = int(targ_row['serial_number'])
+        
+        # if changing serial_number of same row
+        if col == 0 and int(targ_key) != int(new_value):
+            # copy over value to new key
+            self.working_data[str(new_value)] = self.working_data[str(targ_key)].copy()
+            # remove old key/value pair
+            self.working_data.pop(str(targ_key))
+            # update new key with new value
+            self.working_data[str(new_value)][str(targ_col)] = new_value
+        else:
+            self.working_data[str(targ_key)][str(targ_col)] = new_value
+
+        print('New scans: ', self.window().scans)
+
+    @QtCore.pyqtSlot()
+    def save_changes(self):
+        '''Save table changes to runtime scans dict'''
+        if self.working_data != None:
+            # check for any blank rows
+            for key in self.working_data:
+                # if found blank row, delete it
+                if key == None or len(self.working_data[key].values()) == 0:
+                    del self.working_data[key]
+
+            # copy working data w changes over to runtime dict      
+            self.window().scans = self.working_data
+            self.window().write_scans()
+            self.populate(True) # refresh table
+            print("Table changes saved!")
+
+    @QtCore.pyqtSlot()
+    def try_save_changes(self):
+        '''Show confirmation popup before saving changes'''
+        Popup("Would you like to save any changes?", 
+              "Confirm Save", 
+              True,
+              on_accept=lambda: self.save_changes(),
+              on_reject=None)
+        
+    @QtCore.pyqtSlot()
+    def reset_table(self):
+        '''Resets the table to original values'''
+        Popup("Do you want to reset all changes to last save?", 
+                "Confirm Reset",
+                True, 
+                on_accept=lambda: self.populate(True), 
+                on_reject=None, 
+                parent=self)
+    
+    @QtCore.pyqtSlot()
+    def add_row(self):
+        '''Add an empty scan table row'''
+        self.insertRow(self.rowCount())

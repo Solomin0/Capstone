@@ -13,9 +13,9 @@ class MainWindow(QtWidgets.QMainWindow):
     file_path = "scans//scans.txt"
     file_heading = '# Test file generated\n# test comment\n#############################\n'
 
-    __app_title = 'Asset Database Interface'
+    __app_title = 'Asset Scanner Application'
     __version_no = 'v0.0.1'
-    __status = "None"
+    __status = "Unitialized"
     # end fields
 
     # properties
@@ -29,6 +29,11 @@ class MainWindow(QtWidgets.QMainWindow):
     # end properties
 
     @staticmethod
+    def set_status(new_status: str):
+        '''Sets the application status'''
+        MainWindow.status = new_status
+
+    @staticmethod
     def write_scans() -> None:
         '''Write runtime scans dict to file'''
         # make scans folder if it doesn't exist
@@ -40,6 +45,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # init payload list
             json = []
 
+            '''
             new_scan = {
                 "serial_number": 12345,
                 "short_desc": "laptop"
@@ -50,6 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
             }
             MainWindow.scans[new_scan['serial_number']] = new_scan
             MainWindow.scans[new_scan1['serial_number']] = new_scan1
+            '''
 
             if MainWindow.scans and len(MainWindow.scans) > 0: # if scans dict is not None or empty
                 # iterate thru scans and add new line between each
@@ -89,11 +96,13 @@ class MainWindow(QtWidgets.QMainWindow):
         '''Main Window Initialization'''
         super().__init__(*args, **kwargs)
         
+        self.set_status("Loading") # set initial status
+
         self.ui = Ui_MainWindow() # load passed ui
         self.ui.setupUi(self) # populate window with ui
 
         # DEBUG WRITE SCANS TO FILE
-        self.write_scans()
+        # self.write_scans()
 
         # get scans from local storage
         self.read_scans()
@@ -101,33 +110,25 @@ class MainWindow(QtWidgets.QMainWindow):
         # DEBUG PRINT RUNTIME SCANS LIST
         print(self.scans)
 
-        self.goto_screen(0) # start at main menu
+        self.goto_screen(2) # start at view scans screen
         self.connect_persistent_elements() # connect slots to persistent ui elements
+
+        self.set_status("Running") # application is now running
     
     def connect_persistent_elements(self):
         '''Maps custom signals to slots that cannot be directly mapped in Qt Designer'''
-        # Main Menu
+        ### Main Menu
         self.ui.mm_new_scan_btn.clicked.connect(lambda: self.goto_screen(1))
         self.ui.mm_view_scans_btn.clicked.connect(lambda: self.goto_screen(2))
         
-        # New Scan
+        ### New Scan
         self.ui.ns_back_btn.clicked.connect(lambda: self.goto_screen(0))
 
-        # View Scans
-        self.ui.vs_to_mm_btn.clicked.connect(lambda: self.goto_screen(0))
+        ### View Scans
+        # self.ui.vs_new_scan_btn.clicked.connect(lambda: ) # new scan btn
+        self.ui.vs_to_mm_btn.clicked.connect(lambda: self.goto_screen(0)) # bck btn
 
-    def setup_view_scans(self):
-        '''Populate current scans table'''
-        print("Column number : ", self.ui.vs_scans_table.columnCount())
-        
-        # populate table
-        self.ui.vs_scans_table.populate(self.scans)
-
-    def show_dialog(self, value: str):
-        '''Show dialog popup window'''
-        new_popup = Popup(value)
-        new_popup.exec()
-
+    @QtCore.pyqtSlot(int)
     def goto_screen(self, value: int):
         '''Navigate to main menu'''
         # TODO clear all values on current screen
@@ -140,7 +141,7 @@ class MainWindow(QtWidgets.QMainWindow):
             new_title += ' - Main Menu'
         elif value == 1:
             # new scan
-            pass
+            new_title += ' - New Scan'
         elif value == 2:
             # view scans
             new_title += ' - View Scans'
@@ -150,7 +151,13 @@ class MainWindow(QtWidgets.QMainWindow):
         # enable to corresponding screen
         self.ui.main_screen_stack.setCurrentIndex(value)
 
+    @QtCore.pyqtSlot()
     def backup_scans(self):
         '''Serialize current scans to local timestamped file'''
         # TODO
         pass
+
+    def setup_view_scans(self):
+        '''Populate current scans table'''
+        # populate table
+        self.ui.vs_scans_table.populate(True)

@@ -3,11 +3,23 @@
 #############################
 [
  {
-  "serial_number": 12345,
-  "short_desc": "laptop"
+  "serial_number": "12222",
+  "short_desc": "desktop"
  },
  {
-  "serial_number": 1224,
-  "short_desc": "Desktop"
+  "serial_number": "5353232",
+  "short_desc": "la"
+ },
+ {
+  "serial_number": "1",
+  "short_desc": "dese"
+ },
+ {
+  "serial_number": "3523",
+  "short_desc": "what do you want???"
+ },
+ {
+  "serial_number": "5555",
+  "short_desc": "test1"
  }
 ]

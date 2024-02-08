@@ -41,7 +41,7 @@
        <number>2</number>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="main_menu">
        <property name="font">
@@ -310,6 +310,54 @@
       <widget class="QWidget" name="view_scans">
        <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0,0,0">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="PushButton" name="vs_backup_btn">
+            <property name="text">
+             <string>Backup Scans</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="PushButton" name="vs_sync_db_btn">
+            <property name="text">
+             <string>Sync Database</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="PushButton" name="vs_add_row_btn">
+            <property name="text">
+             <string>Add Row</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="PushButton" name="vs_new_scan_btn">
+            <property name="text">
+             <string>Scan</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QGroupBox" name="groupBox">
           <property name="font">
            <font>
@@ -321,7 +369,7 @@
            <string>Current Scans</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="Table" name="vs_scans_table">
              <property name="font">
               <font>
@@ -347,20 +395,53 @@
                <string>Location</string>
               </property>
              </column>
+             <column>
+              <property name="text">
+               <string>Timestamp</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Price</string>
+              </property>
+             </column>
             </widget>
            </item>
-           <item row="1" column="0">
-            <layout class="QVBoxLayout" name="vs_edit_area"/>
-           </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <property name="spacing">
-              <number>180</number>
+              <number>15</number>
              </property>
+             <item>
+              <widget class="PushButton" name="vs_reset_btn">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Reset</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
              <item>
               <widget class="PushButton" name="vs_to_mm_btn">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -371,22 +452,22 @@
               </widget>
              </item>
              <item>
-              <widget class="QDialogButtonBox" name="vs_btn_canvas">
+              <widget class="PushButton" name="vs_save_btn">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="standardButtons">
-                <set>QDialogButtonBox::Reset|QDialogButtonBox::Save</set>
-               </property>
-               <property name="centerButtons">
-                <bool>false</bool>
+               <property name="text">
+                <string>Save</string>
                </property>
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="2" column="0">
+            <layout class="QVBoxLayout" name="vs_edit_area"/>
            </item>
           </layout>
          </widget>
@@ -397,27 +478,10 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar">
+  <widget class="StatusBar" name="statusbar">
    <property name="enabled">
     <bool>true</bool>
    </property>
-  </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>629</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuScans">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionBackup_Scans"/>
-   </widget>
-   <addaction name="menuScans"/>
   </widget>
   <action name="actionBackup_Scans">
    <property name="text">
@@ -444,6 +508,17 @@
    <class>Table</class>
    <extends>QTableWidget</extends>
    <header>.uielements.h</header>
+   <slots>
+    <slot>update_scans(int,int)</slot>
+    <slot>add_row()</slot>
+    <slot>try_save_changes()</slot>
+    <slot>reset_table()</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>StatusBar</class>
+   <extends>QStatusBar</extends>
+   <header>.uielements.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -452,5 +527,70 @@
   <tabstop>mm_view_scans_btn</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>vs_scans_table</sender>
+   <signal>cellChanged(int,int)</signal>
+   <receiver>vs_scans_table</receiver>
+   <slot>update_scans(int,int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>460</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>201</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vs_add_row_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>vs_scans_table</receiver>
+   <slot>add_row()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>486</x>
+     <y>37</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>150</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vs_save_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>vs_scans_table</receiver>
+   <slot>try_save_changes()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>554</x>
+     <y>374</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>321</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vs_reset_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>vs_scans_table</receiver>
+   <slot>reset_table()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>96</x>
+     <y>305</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
