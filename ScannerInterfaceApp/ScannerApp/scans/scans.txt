@@ -8,7 +8,8 @@
  },
  {
   "serial_number": "5353232",
-  "short_desc": "la"
+  "short_desc": "la",
+  "location": "test"
  },
  {
   "serial_number": "1",
@@ -17,10 +18,11 @@
  {
   "serial_number": "3523",
   "short_desc": "this is a test!",
-    "location": "here"
+  "location": "here"
  },
  {
   "serial_number": "555588",
-  "short_desc": "test123"
+  "short_desc": "test123",
+  "location": "35"
  }
 ]

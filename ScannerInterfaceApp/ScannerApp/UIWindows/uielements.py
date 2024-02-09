@@ -152,7 +152,19 @@ class Table(QtWidgets.QTableWidget):
 
         scans_vals = list(self.working_data.values())
         targ_row = scans_vals[row]
-        targ_col = list(targ_row.keys())[col]
+        targ_row_keys = list(targ_row.keys())
+
+        # if target column is not in scan record being updated
+        if col >= len(targ_row_keys):
+            # try to find corresponding column other rows
+            test_col_name = self.try_find_scan_column(col)
+            if (test_col_name == None):
+                # TODO handle when there are no corresponding column entries in any rows 
+                pass
+            else: # if corresponding column name found
+                targ_col = test_col_name
+        else: # if target column is in scan entry
+            targ_col = targ_row_keys[col]
         targ_key = int(targ_row['serial_number'])
         
         # if changing serial_number of same row
@@ -207,3 +219,18 @@ class Table(QtWidgets.QTableWidget):
     def add_row(self):
         '''Add an empty scan table row'''
         self.insertRow(self.rowCount())
+
+    def try_find_scan_column(self, index: int) -> str:
+        '''Try to find a scan column name at passed index'''
+        for item in self.working_data:
+            # try to find corresponding column in list
+            try:
+                targ_col = list(self.working_data[item].keys())[index]
+                return targ_col
+            # if index error, assume row does not have an entry for the column
+            except IndexError:
+                continue
+        
+        # if no rows have an column entry at the passed index
+        return None;            
+
