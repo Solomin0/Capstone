@@ -73,13 +73,18 @@ class Table(QtWidgets.QTableWidget):
             return
         items = list(scans.values())
 
-        # get number of columns from number of keys in either first or last item
-        first_keys = list(items[0].keys())
-        last_keys = list(items[-1].keys())
+        # get row with max number of columns and maps those columns
+        prev_keys = list(items[0].keys())
+        max_keys = prev_keys
+        
+        for i in range(1, len(items)):
+            cur_keys = items[i].keys()
+            if len(cur_keys) > len(prev_keys):
+                max_keys = list(cur_keys)
+            prev_keys = cur_keys
 
-        chosen_keys = first_keys if len(first_keys) > len(last_keys) else last_keys
         # pick whichever item has more columns
-        col_count = len(chosen_keys)
+        col_count = len(max_keys)
         row_count = len(items)
         if  col_count == 0:
             return
@@ -95,7 +100,7 @@ class Table(QtWidgets.QTableWidget):
             # align text to v center 
             header.setTextAlignment(QtCore.Qt.AlignmentFlag.AlignVCenter) 
             # set text to corresponding column name (key in dict)
-            header.setText(chosen_keys[i])
+            header.setText(max_keys[i])
             # place new table widget item on table header
             self.setHorizontalHeaderItem(i, header)
 

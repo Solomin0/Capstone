@@ -16,7 +16,8 @@
  },
  {
   "serial_number": "3523",
-  "short_desc": "this is a test!"
+  "short_desc": "this is a test!",
+    "location": "here"
  },
  {
   "serial_number": "555588",
