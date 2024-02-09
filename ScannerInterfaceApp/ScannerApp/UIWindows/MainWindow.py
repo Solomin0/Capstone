@@ -34,6 +34,23 @@ class MainWindow(QtWidgets.QMainWindow):
         MainWindow.status = new_status
 
     @staticmethod
+    def try_populate_scan_file():
+        '''Populate scans file with default values'''
+        new_scan = {
+            "serial_number": '12345',
+            "short_desc": "laptop"
+        }
+        new_scan1 = {
+            'serial_number': '1224',
+            'short_desc': 'Desktop'
+        }
+        MainWindow.scans[new_scan['serial_number']] = new_scan
+        MainWindow.scans[new_scan1['serial_number']] = new_scan1
+
+        # try default values to scans file
+        MainWindow.write_scans()
+        
+    @staticmethod
     def write_scans() -> None:
         '''Write runtime scans dict to file'''
         # make scans folder if it doesn't exist
@@ -45,22 +62,13 @@ class MainWindow(QtWidgets.QMainWindow):
             # init payload list
             json = []
 
-            '''
-            new_scan = {
-                "serial_number": 12345,
-                "short_desc": "laptop"
-            }
-            new_scan1 = {
-                'serial_number': 1224,
-                'short_desc': 'Desktop'
-            }
-            MainWindow.scans[new_scan['serial_number']] = new_scan
-            MainWindow.scans[new_scan1['serial_number']] = new_scan1
-            '''
-
             if MainWindow.scans and len(MainWindow.scans) > 0: # if scans dict is not None or empty
                 # iterate thru scans and add new line between each
                 for scan in MainWindow.scans.values():
+                    # remove any blank values
+                    for scan_key in scan:
+                        if scan[scan_key] == "" or scan[scan_key] == None:
+                            del scan[scan_key]
                     json.append(scan)
                 
                 # convert payload to json - indented 1 space
@@ -82,6 +90,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         with open(MainWindow.file_path) as f:
             lines = f.read() # read entire file as one string
+            if lines == "" or lines == None: # if file is empty
+                # TODO handle empty file 
+                return
             scans = lines.split(MainWindow.file_heading)[1] # get only scans part of file
             if scans: # if file is not empty
                 # convert to list of dicts from JSON
@@ -101,11 +112,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow() # load passed ui
         self.ui.setupUi(self) # populate window with ui
 
-        # DEBUG WRITE SCANS TO FILE
-        # self.write_scans()
-
         # get scans from local storage
         self.read_scans()
+
+        # if file was empty or no scans returned
+        if MainWindow.scans == None or len(MainWindow.scans) == 0:
+            self.try_populate_scan_file()
+            self.read_scans()
 
         # DEBUG PRINT RUNTIME SCANS LIST
         print(self.scans)
