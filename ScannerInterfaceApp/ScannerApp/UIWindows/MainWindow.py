@@ -115,7 +115,20 @@ class MainWindow(QtWidgets.QMainWindow):
             if lines == "" or lines == None: # if file is empty
                 # TODO handle empty file 
                 return
-            scans = lines.split(self.file_heading)[1] # get only scans part of file
+
+            #scans = lines.split(self.file_heading)[1] # get only scans part of file
+            scan_lines = lines.split('\n')
+            
+            # filter out file comments
+            valid_lines = []
+            for line in scan_lines:
+                if line[0] == ('#' or '\n#' or '# '):
+                    continue
+                else:
+                    valid_lines.append(line)
+
+            scans = '\n'.join(valid_lines)
+
             if scans: # if file is not empty
                 # convert to list of dicts from JSON
                 scans = loads(scans)

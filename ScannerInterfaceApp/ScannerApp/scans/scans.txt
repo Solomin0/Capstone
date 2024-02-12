@@ -1,9 +1,26 @@
 # Test file generated
 # test comment
+# test manually entered comment
 #############################
 [
  {
   "serial_number": "12345",
   "short_desc": "laptop"
+ },
+ {
+  "serial_number": "1232",
+  "short_desc": "Desktop"
+ },
+ {
+  "serial_number": "4444",
+  "short_desc": "Server"
+ },
+ {
+  "serial_number": "22222",
+  "short_desc": "Rack Server"
+ },
+ {
+  "serial_number": "2222",
+  "short_desc": "Ethernet Cable Box"
  }
 ]
