@@ -10,12 +10,14 @@ class MainWindow(QtWidgets.QMainWindow):
     '''Main window running ui'''
      # fields
     scans = {} # dict of dicts where serial no is key
+    hearing_scans = False # whether app is listening for scans
     file_path = "scans//scans.txt"
     file_heading = '# Test file generated\n# test comment\n#############################\n'
 
     __app_title = 'Asset Scanner Application'
     __version_no = 'v0.0.1'
     __status = "Unitialized"
+    __sub_status = ""
     # end fields
 
     # properties
@@ -26,14 +28,22 @@ class MainWindow(QtWidgets.QMainWindow):
     @property
     def status(self) -> str:
         return self.__status
+
+    @property
+    def sub_status(self) -> str:
+        return self.__sub_status
     # end properties
 
     @classmethod
     def set_status(cls, new_status: str):
         '''Sets the application status'''
         cls.status = new_status
-
     
+    @classmethod
+    def set_sub_status(cls, new_sub_status: str):
+        '''Sets application sub-status'''
+        cls.sub_status = new_sub_status
+
     def __init__(self, *args, **kwargs):
         '''Main Window Initialization'''
         super().__init__(*args, **kwargs)
@@ -57,7 +67,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.goto_screen(2) # start at view scans screen
         self.connect_persistent_elements() # connect slots to persistent ui elements
         self.set_status("Running") # application is now running
-    
+        
     def try_populate_scan_file(self):
         '''Populate scans file with default values'''
         new_scan = {
@@ -171,7 +181,7 @@ class MainWindow(QtWidgets.QMainWindow):
         elif value == 2:
             # view scans
             new_title += ' - View Scans'
-            self.populate_scans_table() # populate scans table on new screen
+            self.ui.vs_scans_table.populate(True) # populate scans table on new screen
 
         self.setWindowTitle(new_title) # set new window title
         # enable to corresponding screen
@@ -179,11 +189,31 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def backup_scans(self):
-        '''Serialize current scans to local timestamped file'''
+        '''Serialize current scans to backup local timestamped file'''
         # TODO
         pass
 
-    def populate_scans_table(self):
-        '''Populate current scans table'''
-        # populate table
-        self.ui.vs_scans_table.populate(True)
+    @QtCore.pyqtSlot()
+    def toggle_scan_listen(self):
+        '''Toggle app listening for new scans'''
+        self.hearing_scans = not self.hearing_scans
+        self.update_scan_status()
+
+    def enable_scan_listen(self):
+        '''Enable listening for new scans'''
+        self.hearing_scans = True
+        self.update_scan_status()
+    
+    def disable_scan_listen(self):
+        "Disable listening for new scans"
+        self.hearing_scans = False
+        self.update_scan_status()
+
+    def update_scan_status(self):
+        '''Updates text/color on scans button'''
+        if self.hearing_scans:
+            self.ui.vs_new_scan_btn.setText("Scanning")
+            self.set_sub_status("Listening for scans...")
+        else:
+            self.ui.vs_new_scan_btn.setText("Scan")
+            self.set_sub_status("")

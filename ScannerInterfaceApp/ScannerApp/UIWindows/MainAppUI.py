@@ -303,6 +303,7 @@ class Ui_MainWindow(object):
         self.vs_reset_btn.clicked.connect(self.vs_scans_table.reset_table) # type: ignore
         self.vs_del_last_btn.clicked.connect(self.vs_scans_table.try_del_last_edited_row) # type: ignore
         self.main_screen_stack.currentChanged['int'].connect(self.vs_scans_table.clear) # type: ignore
+        self.vs_new_scan_btn.clicked.connect(MainWindow.toggle_scan_listen) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.mm_new_scan_btn, self.mm_sync_db_btn)
         MainWindow.setTabOrder(self.mm_sync_db_btn, self.mm_view_scans_btn)

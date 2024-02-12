@@ -23,7 +23,10 @@ class StatusBar(QtWidgets.QStatusBar):
     @QtCore.pyqtSlot()
     def __refresh_status(self):
         '''Periodically refresh status bar'''
-        self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status}')
+        if (self.parentWidget().sub_status == "" or self.parentWidget().sub_status == None):
+            self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status}')
+        else:
+            self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status} - {self.parentWidget().sub_status}')
         # call method again every tick of the app internal clock
         # slightly delayed due to internal clock being init'd before statusbar obj
         # print("Status bar refreshed!")

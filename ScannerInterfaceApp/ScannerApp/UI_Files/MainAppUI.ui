@@ -625,5 +625,24 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>vs_new_scan_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggle_scan_listen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>566</x>
+     <y>35</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>466</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>toggle_scan_listen()</slot>
+ </slots>
 </ui>
