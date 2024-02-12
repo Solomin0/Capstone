@@ -9,13 +9,13 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
-class Ui_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(194, 148)
-        self.gridLayout_2 = QtWidgets.QGridLayout(Dialog)
+class Ui_DialogConfirm(object):
+    def setupUi(self, DialogConfirm):
+        DialogConfirm.setObjectName("DialogConfirm")
+        DialogConfirm.resize(194, 148)
+        self.gridLayout_2 = QtWidgets.QGridLayout(DialogConfirm)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.groupBox = QtWidgets.QGroupBox(parent=Dialog)
+        self.groupBox = QtWidgets.QGroupBox(parent=DialogConfirm)
         font = QtGui.QFont()
         font.setPointSize(12)
         self.groupBox.setFont(font)
@@ -40,12 +40,12 @@ class Ui_Dialog(object):
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.gridLayout_2.addWidget(self.groupBox, 0, 0, 1, 1)
 
-        self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept) # type: ignore
-        self.buttonBox.rejected.connect(Dialog.reject) # type: ignore
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.retranslateUi(DialogConfirm)
+        self.buttonBox.accepted.connect(DialogConfirm.accept) # type: ignore
+        self.buttonBox.rejected.connect(DialogConfirm.reject) # type: ignore
+        QtCore.QMetaObject.connectSlotsByName(DialogConfirm)
 
-    def retranslateUi(self, Dialog):
+    def retranslateUi(self, DialogConfirm):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Confirm"))
-        self.label.setText(_translate("Dialog", "Label"))
+        DialogConfirm.setWindowTitle(_translate("DialogConfirm", "Confirm"))
+        self.label.setText(_translate("DialogConfirm", "Label"))

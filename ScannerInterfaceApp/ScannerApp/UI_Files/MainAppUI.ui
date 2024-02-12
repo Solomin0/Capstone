@@ -609,5 +609,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>main_screen_stack</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>vs_scans_table</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>549</x>
+     <y>11</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

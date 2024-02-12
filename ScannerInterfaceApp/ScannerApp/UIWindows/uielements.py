@@ -1,6 +1,7 @@
 '''Custom child classes of QT widgets so custom slots can be added'''
 from PyQt6 import QtCore, QtWidgets
-from .ConfirmUI import Ui_Dialog
+from .ConfirmUI import Ui_DialogConfirm
+from.OkUI import Ui_DialogOk
 from copy import deepcopy
 
 
@@ -28,19 +29,33 @@ class StatusBar(QtWidgets.QStatusBar):
         # print("Status bar refreshed!")
         QtCore.QTimer.singleShot(int(self.__refresh_interval*1000), self.__refresh_status)
 
-
 class Popup(QtWidgets.QDialog):
-    '''Popup dialog box'''
-    def __init__(self, label_text:str, window_text: str, set_modal: bool, on_accept, on_reject, *args, **kwargs):
+    '''Base class for all dialogs'''
+    def __init__(self, ui: type, label_text: str, window_text: str, set_modal: bool, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setModal(set_modal)
-        self.ui = Ui_Dialog()
+        self.ui = ui()
         self.ui.setupUi(self)
         self.ui.label.setText(label_text)
         self.setWindowTitle(window_text)
+
+
+class OkWindow(Popup):
+    '''Notification (Ok) Dialog Box'''
+    def __init__(self, label_text: str, window_text: str, set_modal: bool, on_ok, *args, **kwargs):
+        super().__init__(Ui_DialogOk, label_text, window_text, set_modal, *args, **kwargs)
+        if (on_ok != None): self.accepted.connect(on_ok)
+        self.exec()
+        
+
+class ConfirmWindow(Popup):
+    '''Confirmation dialog box'''
+    def __init__(self, label_text:str, window_text: str, set_modal: bool, on_accept, on_reject, *args, **kwargs):
+        super().__init__(Ui_DialogConfirm, label_text, window_text, set_modal, *args, **kwargs)
         if (on_accept != None): self.accepted.connect(on_accept)
         if (on_reject != None): self.rejected.connect(on_reject)
         self.exec()
+
 
 class StackedWidget(QtWidgets.QStackedWidget):
     '''Custom stacked widget'''
@@ -137,8 +152,31 @@ class Table(QtWidgets.QTableWidget):
     @QtCore.pyqtSlot(int, int)
     def update_scans(self, row, col):
         '''Update working data with new cell value'''
-        new_value = self.item(row, col).text()
         scans_vals = list(self.working_data.values())
+        # find cell with the typed value in it
+        new_value = self.item(row, col).text()
+
+        # if target row is not the first one
+        # make sure there are no empty rows above target
+        if row != 0:
+            found_valid = False
+            num_up = 1
+            checked_row = 1
+            # if this is not the first now
+            while not found_valid and checked_row > 0:
+                try:
+                    checked_row = row - num_up
+                    row_above = scans_vals[checked_row]
+                    found_valid = True
+                except IndexError:
+                   num_up += 1
+                   checked_row = row - num_up
+            
+            # if no valid found all the way up to the top, make this new target row
+            if not found_valid:
+                row = 0
+            else: # if there was a valid row found, make target row right below it
+                row = checked_row + 1
 
         # if adding new row
         if row > len(scans_vals) - 1:
@@ -149,7 +187,7 @@ class Table(QtWidgets.QTableWidget):
             else: # if adding new row by editing serial_no
                 self.working_data[new_value] = scans_vals[-1].copy()
                 scans_vals = list(self.working_data.values())
-                targ_row = list(scans_vals)[row]
+                targ_row = scans_vals[row]
                 targ_col = list(targ_row.keys())[col]
                 self.working_data[new_value][targ_col] = new_value
 
@@ -211,7 +249,7 @@ class Table(QtWidgets.QTableWidget):
     @QtCore.pyqtSlot()
     def try_save_changes(self):
         '''Show confirmation popup before saving changes'''
-        Popup("Would you like to save any changes?", 
+        ConfirmWindow("Would you like to save any changes?", 
               "Confirm Save", 
               True,
               on_accept=lambda: self.save_changes(),
@@ -220,7 +258,7 @@ class Table(QtWidgets.QTableWidget):
     @QtCore.pyqtSlot()
     def reset_table(self):
         '''Resets the table to original values'''
-        Popup("Do you want to reset all changes to last save?", 
+        ConfirmWindow("Do you want to reset all changes to last save?", 
                 "Confirm Reset",
                 True, 
                 on_accept=lambda: self.populate(True), 
@@ -247,7 +285,7 @@ class Table(QtWidgets.QTableWidget):
             # TODO show ok menu notifying to edit a row first
             pass
         
-        Popup("Would you like to delete the last edited row?\nSerial Number: " + self.last_edited_Row_Serial, 
+        ConfirmWindow("Would you like to delete the last edited row?\nSerial Number: " + self.last_edited_Row_Serial, 
               "Confirm Delete Row", 
               True,
               on_accept=lambda: self.del_last_edited_row(),

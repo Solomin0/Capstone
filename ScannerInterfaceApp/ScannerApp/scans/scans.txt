@@ -1,6 +1,5 @@
 # Test file generated
 # test comment
-# test manually entered comment
 #############################
 [
  {
@@ -22,5 +21,9 @@
  {
   "serial_number": "2222",
   "short_desc": "Ethernet Cable Box"
+ },
+ {
+  "serial_number": "222",
+  "short_desc": "5555"
  }
 ]

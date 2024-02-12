@@ -1,5 +1,5 @@
 from PyQt6 import QtWidgets, QtCore
-from .uielements import Popup
+from .uielements import ConfirmWindow
 from .MainAppUI import Ui_MainWindow
 from os import mkdir
 from os.path import isfile, isdir
@@ -116,7 +116,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 # TODO handle empty file 
                 return
 
-            #scans = lines.split(self.file_heading)[1] # get only scans part of file
+            ## get only scans part of file
+            # split out file by line
             scan_lines = lines.split('\n')
             
             # filter out file comments
@@ -126,7 +127,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     continue
                 else:
                     valid_lines.append(line)
-
+            
+            # join file contents back together
             scans = '\n'.join(valid_lines)
 
             if scans: # if file is not empty
