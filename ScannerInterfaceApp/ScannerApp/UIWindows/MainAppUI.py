@@ -262,16 +262,16 @@ class Ui_MainWindow(object):
         self.vs_reset_btn.setSizePolicy(sizePolicy)
         self.vs_reset_btn.setObjectName("vs_reset_btn")
         self.horizontalLayout_2.addWidget(self.vs_reset_btn)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout_2.addItem(spacerItem2)
-        self.vs_to_mm_btn = PushButton(parent=self.groupBox)
+        self.vs_del_last_btn = PushButton(parent=self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.vs_to_mm_btn.sizePolicy().hasHeightForWidth())
-        self.vs_to_mm_btn.setSizePolicy(sizePolicy)
-        self.vs_to_mm_btn.setObjectName("vs_to_mm_btn")
-        self.horizontalLayout_2.addWidget(self.vs_to_mm_btn)
+        sizePolicy.setHeightForWidth(self.vs_del_last_btn.sizePolicy().hasHeightForWidth())
+        self.vs_del_last_btn.setSizePolicy(sizePolicy)
+        self.vs_del_last_btn.setObjectName("vs_del_last_btn")
+        self.horizontalLayout_2.addWidget(self.vs_del_last_btn)
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem2)
         self.vs_save_btn = PushButton(parent=self.groupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -296,11 +296,12 @@ class Ui_MainWindow(object):
         self.actionBackup_Scans.setObjectName("actionBackup_Scans")
 
         self.retranslateUi(MainWindow)
-        self.main_screen_stack.setCurrentIndex(0)
+        self.main_screen_stack.setCurrentIndex(2)
         self.vs_scans_table.cellChanged['int','int'].connect(self.vs_scans_table.update_scans) # type: ignore
         self.vs_add_row_btn.clicked.connect(self.vs_scans_table.add_row) # type: ignore
         self.vs_save_btn.clicked.connect(self.vs_scans_table.try_save_changes) # type: ignore
         self.vs_reset_btn.clicked.connect(self.vs_scans_table.reset_table) # type: ignore
+        self.vs_del_last_btn.clicked.connect(self.vs_scans_table.try_del_last_edited_row) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.mm_new_scan_btn, self.mm_sync_db_btn)
         MainWindow.setTabOrder(self.mm_sync_db_btn, self.mm_view_scans_btn)
@@ -331,7 +332,7 @@ class Ui_MainWindow(object):
         item = self.vs_scans_table.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "Price"))
         self.vs_reset_btn.setText(_translate("MainWindow", "Reset"))
-        self.vs_to_mm_btn.setText(_translate("MainWindow", "Back"))
+        self.vs_del_last_btn.setText(_translate("MainWindow", "Delete Last Edited"))
         self.vs_save_btn.setText(_translate("MainWindow", "Save"))
         self.actionBackup_Scans.setText(_translate("MainWindow", "Backup Scans"))
 from .uielements import PushButton, StackedWidget, StatusBar, Table

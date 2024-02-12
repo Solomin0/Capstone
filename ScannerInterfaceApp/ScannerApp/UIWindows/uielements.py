@@ -1,6 +1,8 @@
 '''Custom child classes of QT widgets so custom slots can be added'''
 from PyQt6 import QtCore, QtWidgets
 from .ConfirmUI import Ui_Dialog
+from copy import deepcopy
+
 
 class PushButton(QtWidgets.QPushButton):
     '''Custom push button'''
@@ -60,12 +62,13 @@ class Table(QtWidgets.QTableWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.working_data = {} # init dict for holding data containing changes
+        self.last_edited_Row_Serial = None # init last edited row var
 
     def populate(self, reset: bool = False):
         ''' Populates table with values from passed list of dicts'''
         '''TODO handle sorting on population'''
         if reset:
-            self.working_data = self.window().scans
+            self.working_data = deepcopy(self.window().scans)
        
         scans = self.working_data
 
@@ -167,16 +170,25 @@ class Table(QtWidgets.QTableWidget):
             targ_col = targ_row_keys[col]
         targ_key = int(targ_row['serial_number'])
         
+        last_edited = dict()
+
         # if changing serial_number of same row
         if col == 0 and int(targ_key) != int(new_value):
             # copy over value to new key
             self.working_data[str(new_value)] = self.working_data[str(targ_key)].copy()
             # remove old key/value pair
             self.working_data.pop(str(targ_key))
-            # update new key with new value
-            self.working_data[str(new_value)][str(targ_col)] = new_value
+            # cache new row entry as target row
+            last_edited = self.working_data[str(new_value)]
         else:
-            self.working_data[str(targ_key)][str(targ_col)] = new_value
+            # cache existing row entry at target row
+            last_edited = self.working_data[str(targ_key)]
+
+        # update target cell with new value
+        last_edited[str(targ_col)] = new_value
+
+        # cache last edited row's serial number
+        self.last_edited_Row_Serial = list(last_edited.items())[0][1]
 
         print('New scans: ', self.window().scans)
 
@@ -191,7 +203,7 @@ class Table(QtWidgets.QTableWidget):
                     del self.working_data[key]
 
             # copy working data w changes over to runtime dict      
-            self.window().scans = self.working_data
+            self.window().scans = deepcopy(self.working_data)
             self.window().write_scans()
             self.populate(True) # refresh table
             print("Table changes saved!")
@@ -220,8 +232,33 @@ class Table(QtWidgets.QTableWidget):
         '''Add an empty scan table row'''
         self.insertRow(self.rowCount())
 
+
+    def del_last_edited_row(self):
+        '''Deletes the last edited row from table'''
+        #target = self.findItems(self.last_edited_Row_Serial)
+        #print("Delete target: " + target)
+        del self.working_data[self.last_edited_Row_Serial]
+        self.populate()
+
+    @QtCore.pyqtSlot()
+    def try_del_last_edited_row(self):
+        '''Show confirmation  pop-up for deleted last edited row'''
+        if self.last_edited_Row_Serial == None:
+            # TODO show ok menu notifying to edit a row first
+            pass
+        
+        Popup("Would you like to delete the last edited row?\nSerial Number: " + self.last_edited_Row_Serial, 
+              "Confirm Delete Row", 
+              True,
+              on_accept=lambda: self.del_last_edited_row(),
+              on_reject=None)
+        
+
     def try_find_scan_column(self, index: int) -> str:
-        '''Try to find a scan column name at passed index'''
+        '''
+        Try to find a scan column name in table data at passed index.
+        Basically, find row serialnumber by row position in table.
+        '''
         for item in self.working_data:
             # try to find corresponding column in list
             try:

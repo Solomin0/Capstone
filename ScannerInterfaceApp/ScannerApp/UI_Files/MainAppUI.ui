@@ -426,6 +426,19 @@
               </widget>
              </item>
              <item>
+              <widget class="PushButton" name="vs_del_last_btn">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Delete Last Edited</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -437,19 +450,6 @@
                 </size>
                </property>
               </spacer>
-             </item>
-             <item>
-              <widget class="PushButton" name="vs_to_mm_btn">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Back</string>
-               </property>
-              </widget>
              </item>
              <item>
               <widget class="PushButton" name="vs_save_btn">
@@ -513,6 +513,7 @@
     <slot>add_row()</slot>
     <slot>try_save_changes()</slot>
     <slot>reset_table()</slot>
+    <slot>try_del_last_edited_row()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -589,6 +590,22 @@
     <hint type="destinationlabel">
      <x>96</x>
      <y>305</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vs_del_last_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>vs_scans_table</receiver>
+   <slot>try_del_last_edited_row()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>371</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>180</x>
+     <y>286</y>
     </hint>
    </hints>
   </connection>

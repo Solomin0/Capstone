@@ -5,13 +5,5 @@
  {
   "serial_number": "12345",
   "short_desc": "laptop"
- },
- {
-  "serial_number": "1224",
-  "short_desc": "Desktop"
- },
- {
-  "serial_number": "122",
-  "short_desc": "teste"
  }
 ]
