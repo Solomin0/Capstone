@@ -154,7 +154,11 @@ class Table(QtWidgets.QTableWidget):
     
     @QtCore.pyqtSlot(int, int)
     def update_scans(self, row, col):
-        '''Update working data with new cell value'''
+        '''
+        Update working data with new cell value.
+        This is called when something is manually typed into cell.
+        '''
+
         scans_vals = list(self.working_data.values())
         # find cell with the typed value in it
         new_value = self.item(row, col).text()

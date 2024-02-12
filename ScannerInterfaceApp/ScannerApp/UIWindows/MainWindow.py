@@ -217,3 +217,8 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.ui.vs_new_scan_btn.setText("Scan")
             self.set_sub_status("")
+
+    def register_scan(self, serial_no):
+        '''Get scan data, convert it to a new row entry or update it if exists'''
+        # TODO 
+        pass
