@@ -184,13 +184,27 @@ class Table(QtWidgets.QTableWidget):
         # if adding new row
         if row > len(scans_vals) - 1:
             # if not adding new row by editing serial_no
-            if col != 0 and self.item(row, col -1).text() == (None or ""):
+            if col != 0 and (self.item(row, col -1) == None or self.item(row, col-1).text() == (None or "")):
                 # TODO move selection over to serial_no
                 return
             else: # if adding new row by editing serial_no
+                
+                # check for duplicate serial numbers
+                for seral_no in self.working_data.keys():
+                    if new_value == seral_no:
+                        notif = OkWindow(
+                            "Cannot enter duplicate serial number.",
+                            "Duplicate serial number detected",
+                            True,
+                            None
+                        )
+                        new_value = ""
+                        self.item(row, col).setText("")
+                        return
+            
                 self.working_data[new_value] = scans_vals[-1].copy()
-                scans_vals = list(self.working_data.values())
-                targ_row = scans_vals[row]
+                scans_vals = list(self.working_data.items())
+                targ_row = scans_vals[row][1]
                 targ_col = list(targ_row.keys())[col]
                 self.working_data[new_value][targ_col] = new_value
 
@@ -209,12 +223,12 @@ class Table(QtWidgets.QTableWidget):
                 targ_col = test_col_name
         else: # if target column is in scan entry
             targ_col = targ_row_keys[col]
-        targ_key = int(targ_row['serial_number'])
+        targ_key = targ_row['serial_number']
         
         last_edited = dict()
 
         # if changing serial_number of same row
-        if col == 0 and int(targ_key) != int(new_value):
+        if col == 0 and targ_key != new_value:
             # copy over value to new key
             self.working_data[str(new_value)] = self.working_data[str(targ_key)].copy()
             # remove old key/value pair

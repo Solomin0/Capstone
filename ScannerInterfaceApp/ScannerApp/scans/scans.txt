@@ -19,11 +19,7 @@
   "short_desc": "Rack Server"
  },
  {
-  "serial_number": "2222",
-  "short_desc": "Ethernet Cable Box"
- },
- {
-  "serial_number": "222",
-  "short_desc": "5555"
+  "serial_number": "55",
+  "short_desc": "test"
  }
 ]
