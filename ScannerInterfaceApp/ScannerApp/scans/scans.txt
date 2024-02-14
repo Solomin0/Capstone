@@ -13,5 +13,9 @@
  {
   "serial_number": "default",
   "short_desc": "tablet"
+ },
+ {
+  "serial_number": "0default",
+  "short_desc": "tablet"
  }
 ]

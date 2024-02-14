@@ -148,9 +148,6 @@ class Table(QtWidgets.QTableWidget):
                 cell.setText(str(content))
                 # place cell on table
                 self.setItem(i, j, cell)
-        
-        # TODO handle applying sorting
-
         print("Scans table populated! Num Cols: ", self.columnCount(),"Num Rows: ", self.rowCount())
     
     @QtCore.pyqtSlot(int, int)
@@ -188,43 +185,51 @@ class Table(QtWidgets.QTableWidget):
 
         # if adding new row
         if row > len(scans_vals) - 1:
+            new_serial_no = "0" + scans_vals[-1]['serial_number']
             # if not adding new row by editing serial_no
             if col != 0 and (self.item(row, col -1) == None or self.item(row, col-1).text() == (None or "")):
                 # clear current cell value
                 self.item(row, col).setText('')
                 # add placeholder serial number to row
-                self.setItem(row, 0, QtWidgets.QTableWidgetItem("default"))
+                self.setItem(row, 0, QtWidgets.QTableWidgetItem(new_serial_no))
                 # register table update
                 self.update_scans(row, 0)
                 return
-            else: # if adding new row by editing serial_no
+            elif col == 0: # if adding new row by editing serial_no
                 # if clearing serial number to blank
                 if new_value == "" or new_value == None:
                     # set serial number of default value
-                    self.item(row, col).setText("default")
+                    self.item(row, col).setText(new_serial_no)
                     # register table update
                     self.update_scans(row, col)
                     return
                 
+                found_duplicate = False
                 # if new value is not blank
                 # check for duplicate serial numbers
                 for seral_no in self.working_data.keys():
                     # if duplicate found
                     if new_value == seral_no:
-                        # notify user
-                        notif = OkWindow(
-                            "Cannot enter duplicate serial number.",
-                            "Duplicate serial number detected",
-                            True,
-                            None
-                        )
-                        # set serial number of default value
-                        new_value = "default"
-                        self.item(row, col).setText(new_value)
-                        return
-
+                        found_duplicate = True
+                        break
+                
+                if found_duplicate:
+                    # set serial number of default value
+                    new_value = new_serial_no
+                    self.working_data[new_value] = scans_vals[-1].copy()
+                    self.working_data[new_value]['serial_number'] = new_value
+                    self.item(row, col).setText(new_value)
+                    # notify user
+                    OkWindow(
+                        "Cannot enter duplicate serial number.",
+                        "Duplicate serial number detected",
+                        True,
+                        None
+                    )
+                
                 # copy previous row's content to new row
-                self.working_data[new_value] = scans_vals[-1].copy()
+                if new_value not in self.working_data.keys():
+                    self.working_data[new_value] = scans_vals[-1].copy()
                 row_columns = list(self.working_data[new_value].keys())
 
                 # show new row contents on target row cells
@@ -242,8 +247,8 @@ class Table(QtWidgets.QTableWidget):
 
         # if target column is not in scan record being updated
         if col >= len(targ_row_keys):
-            # try to find corresponding column other rows
-            test_col_name = self.try_find_scan_column(col)
+            # try to find corresponding column any other row
+            test_col_name = self.__try_find_col_in_scans(col)
             if (test_col_name == None):
                 # TODO handle when there are no corresponding column entries in any rows 
                 pass
@@ -275,8 +280,7 @@ class Table(QtWidgets.QTableWidget):
 
         print('New scans: ', self.working_data)
 
-    @QtCore.pyqtSlot()
-    def save_changes(self):
+    def __save_changes(self):
         '''Save table changes to runtime scans dict'''
         if self.working_data != None:
             # check for any blank rows
@@ -297,7 +301,7 @@ class Table(QtWidgets.QTableWidget):
         ConfirmWindow("Would you like to save any changes?", 
               "Confirm Save", 
               True,
-              on_accept=lambda: self.save_changes(),
+              on_accept=lambda: self.__save_changes(),
               on_reject=None)
         
     @QtCore.pyqtSlot()
@@ -316,7 +320,7 @@ class Table(QtWidgets.QTableWidget):
         self.insertRow(self.rowCount())
 
 
-    def del_last_edited_row(self):
+    def __del_last_edited_row(self):
         '''Deletes the last edited row from table'''
         #target = self.findItems(self.last_edited_Row_Serial)
         #print("Delete target: " + target)
@@ -333,11 +337,11 @@ class Table(QtWidgets.QTableWidget):
         ConfirmWindow("Would you like to delete the last edited row?\nSerial Number: " + self.last_edited_Row_Serial, 
               "Confirm Delete Row", 
               True,
-              on_accept=lambda: self.del_last_edited_row(),
+              on_accept=lambda: self.__del_last_edited_row(),
               on_reject=None)
         
 
-    def try_find_scan_column(self, index: int) -> str:
+    def __try_find_col_in_scans(self, index: int) -> str:
         '''
         Try to find a scan column name in table data at passed index.
         Basically, find row serialnumber by row position in table.
