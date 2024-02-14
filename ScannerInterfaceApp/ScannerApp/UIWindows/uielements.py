@@ -98,6 +98,7 @@ class Table(QtWidgets.QTableWidget):
         prev_keys = list(items[0].keys())
         max_keys = prev_keys
         
+        # find row with the most entries (columns)
         for i in range(1, len(items)):
             cur_keys = items[i].keys()
             if len(cur_keys) > len(prev_keys):
@@ -189,24 +190,47 @@ class Table(QtWidgets.QTableWidget):
         if row > len(scans_vals) - 1:
             # if not adding new row by editing serial_no
             if col != 0 and (self.item(row, col -1) == None or self.item(row, col-1).text() == (None or "")):
-                # TODO move selection over to serial_no
+                # clear current cell value
+                self.item(row, col).setText('')
+                # add placeholder serial number to row
+                self.setItem(row, 0, QtWidgets.QTableWidgetItem("default"))
+                # register table update
+                self.update_scans(row, 0)
                 return
             else: # if adding new row by editing serial_no
+                # if clearing serial number to blank
+                if new_value == "" or new_value == None:
+                    # set serial number of default value
+                    self.item(row, col).setText("default")
+                    # register table update
+                    self.update_scans(row, col)
+                    return
                 
+                # if new value is not blank
                 # check for duplicate serial numbers
                 for seral_no in self.working_data.keys():
+                    # if duplicate found
                     if new_value == seral_no:
+                        # notify user
                         notif = OkWindow(
                             "Cannot enter duplicate serial number.",
                             "Duplicate serial number detected",
                             True,
                             None
                         )
-                        new_value = ""
-                        self.item(row, col).setText("")
+                        # set serial number of default value
+                        new_value = "default"
+                        self.item(row, col).setText(new_value)
                         return
-            
+
+                # copy previous row's content to new row
                 self.working_data[new_value] = scans_vals[-1].copy()
+                row_columns = list(self.working_data[new_value].keys())
+
+                # show new row contents on target row cells
+                for i in range(1, len(row_columns)):
+                    self.setItem(row, i, QtWidgets.QTableWidgetItem(self.working_data[new_value][row_columns[i]]))
+
                 scans_vals = list(self.working_data.items())
                 targ_row = scans_vals[row][1]
                 targ_col = list(targ_row.keys())[col]
@@ -241,7 +265,7 @@ class Table(QtWidgets.QTableWidget):
             last_edited = self.working_data[str(new_value)]
         else:
             # cache existing row entry at target row
-            last_edited = self.working_data[str(targ_key)]
+                last_edited = self.working_data[str(targ_key)]
 
         # update target cell with new value
         last_edited[str(targ_col)] = new_value
@@ -249,7 +273,7 @@ class Table(QtWidgets.QTableWidget):
         # cache last edited row's serial number
         self.last_edited_Row_Serial = list(last_edited.items())[0][1]
 
-        print('New scans: ', self.window().scans)
+        print('New scans: ', self.working_data)
 
     @QtCore.pyqtSlot()
     def save_changes(self):

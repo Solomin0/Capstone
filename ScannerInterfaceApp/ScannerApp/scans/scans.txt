@@ -7,19 +7,11 @@
   "short_desc": "laptop"
  },
  {
-  "serial_number": "1232",
+  "serial_number": "1224",
   "short_desc": "Desktop"
  },
  {
-  "serial_number": "4444",
-  "short_desc": "Server"
- },
- {
-  "serial_number": "22222",
-  "short_desc": "Rack Server"
- },
- {
-  "serial_number": "55",
-  "short_desc": "test"
+  "serial_number": "default",
+  "short_desc": "tablet"
  }
 ]
