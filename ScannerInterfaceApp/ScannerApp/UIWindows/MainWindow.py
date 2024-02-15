@@ -83,7 +83,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # try default values to scans file
         self.write_scans()
-        
+
     def write_scans(self) -> None:
         '''Write runtime scans dict to file'''
         # make scans folder if it doesn't exist

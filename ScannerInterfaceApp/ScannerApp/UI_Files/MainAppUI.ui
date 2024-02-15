@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>629</width>
-    <height>434</height>
+    <width>655</width>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -397,12 +397,17 @@
              </column>
              <column>
               <property name="text">
-               <string>Timestamp</string>
+               <string>Time Created</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Price</string>
+               <string>Time Modified</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>EOL Date</string>
               </property>
              </column>
             </widget>
@@ -552,8 +557,8 @@
    <slot>add_row()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>486</x>
-     <y>37</y>
+     <x>572</x>
+     <y>46</y>
     </hint>
     <hint type="destinationlabel">
      <x>347</x>
@@ -568,8 +573,8 @@
    <slot>try_save_changes()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>554</x>
-     <y>374</y>
+     <x>643</x>
+     <y>394</y>
     </hint>
     <hint type="destinationlabel">
      <x>510</x>
@@ -632,12 +637,12 @@
    <slot>toggle_scan_listen()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
-     <y>35</y>
+     <x>653</x>
+     <y>45</y>
     </hint>
     <hint type="destinationlabel">
      <x>466</x>
-     <y>-1</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>

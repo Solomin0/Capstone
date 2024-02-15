@@ -1,0 +1,13 @@
+# Test file generated
+# test comment
+#############################
+[
+ {
+  "serial_number": "12345",
+  "short_desc": "laptop"
+ },
+ {
+  "serial_number": "1224",
+  "short_desc": "Desktop"
+ }
+]
