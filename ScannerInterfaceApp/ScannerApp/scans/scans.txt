@@ -16,6 +16,6 @@
  },
  {
   "serial_number": "0default",
-  "short_desc": "tablet"
+  "short_desc": "0"
  }
 ]

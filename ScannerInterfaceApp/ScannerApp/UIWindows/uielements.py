@@ -71,11 +71,6 @@ class Dialog(QtWidgets.QDialog):
         super().__init__(*args, **kwargs)
 
 class Table(QtWidgets.QTableWidget):
-    sorting_modes = [
-        'asc',
-        'desc',
-    ]
-
     '''Custom table widget'''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -87,12 +82,10 @@ class Table(QtWidgets.QTableWidget):
         '''TODO handle sorting on population'''
         if reset:
             self.working_data = deepcopy(self.window().scans)
-       
-        scans = self.working_data
 
-        if len(scans) == 0:
+        if len(self.working_data) == 0:
             return
-        items = list(scans.values())
+        items = list(self.working_data.values())
 
         # get row with max number of columns and maps those columns
         prev_keys = list(items[0].keys())
@@ -292,8 +285,12 @@ class Table(QtWidgets.QTableWidget):
             # copy working data w changes over to runtime dict      
             self.window().scans = deepcopy(self.working_data)
             self.window().write_scans()
+            OkWindow("Table changes saved!",
+                     "Changes Saved",
+                     False,
+                     None
+                     )
             self.populate(True) # refresh table
-            print("Table changes saved!")
 
     @QtCore.pyqtSlot()
     def try_save_changes(self):
