@@ -9,5 +9,9 @@
  {
   "serial_number": "1224",
   "short_desc": "Desktop"
+ },
+ {
+  "serial_number": "01224",
+  "short_desc": "Desktop"
  }
 ]
