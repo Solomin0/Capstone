@@ -1,10 +1,10 @@
 from PyQt6 import QtWidgets, QtCore
-from .uielements import ConfirmWindow
+from .uielements import InputWindow, ConfirmWindow, OkWindow
 from .MainAppUI import Ui_MainWindow
 from os import mkdir
 from os.path import isfile, isdir
 from json import loads, dumps
-
+from datetime import datetime
 
 class MainWindow(QtWidgets.QMainWindow):
     '''Main window running ui'''
@@ -84,14 +84,14 @@ class MainWindow(QtWidgets.QMainWindow):
         # try default values to scans file
         self.write_scans()
 
-    def write_scans(self) -> None:
-        '''Write runtime scans dict to file'''
+    def __write_scans_to(self, file_path: str):
+        '''Write scans to target file at passed path'''
         # make scans folder if it doesn't exist
-        dir_name = self.file_path.split('//')[0]
+        dir_name = file_path.split('//')[0]
         if (not isdir(dir_name)):
             mkdir(dir_name)
 
-        with open(self.file_path, 'w+') as f:
+        with open(file_path, 'w+') as f:
             # init payload list
             json = []
 
@@ -114,13 +114,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 # write empty file with file heading
                 f.writelines(self.file_heading)
 
-    def read_scans(self): 
+
+    def write_scans(self) -> None:
+        '''Write runtime scans dict to file'''
+        self.__write_scans_to(self.file_path)
+
+    def __read_scans_from(self, file_path: str): 
         '''Read scans from file to runtime scans dict'''
         # return if no file
-        if (not isfile(self.file_path)):
+        if (not isfile(file_path)):
                 return
 
-        with open(self.file_path) as f:
+        with open(file_path) as f:
             lines = f.read() # read entire file as one string
             if lines == "" or lines == None: # if file is empty
                 # TODO handle empty file 
@@ -149,6 +154,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 for scan_dict in scans:
                     # add scan record to runtime dict with serial number (unique) as key
                     self.scans[scan_dict['serial_number']] = scan_dict  
+
+    def read_scans(self):
+        '''Read scans from file to runtime scans dict'''
+        self.__read_scans_from(self.file_path)
 
     def connect_persistent_elements(self):
         '''Maps custom signals to slots that cannot be directly mapped in Qt Designer'''
@@ -188,10 +197,67 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.main_screen_stack.setCurrentIndex(value)
 
     @QtCore.pyqtSlot()
-    def backup_scans(self):
+    def try_backup_scans(self):
         '''Serialize current scans to backup local timestamped file'''
-        # TODO
-        pass
+        # prompt to save changes first
+        self.ui.vs_scans_table.try_save_changes()
+        # display input window 
+        inputWin = InputWindow("Enter backup file name:",
+                    "Backup file name input",
+                    "scans" + datetime.now().strftime('%m_%d_%Y-%H_%M'),
+                    True,
+                    None,
+                    None,
+                    False
+                )
+        
+        # hacky af
+        # manually connecting inputWin dialog on_accept callback for inputWindow after its definition
+        # to get around not referencing inputWin var within its own obj definition
+        getText = inputWin.ui.input.text
+        callback = lambda: self.__backup_scans(getText())
+        inputWin.accepted.connect(lambda: callback())
+        inputWin.exec()
+
+    def __backup_scans(self, backup_file_name: str):
+        '''Serialize current scans to backup local timestampted file'''
+        if (backup_file_name is None): 
+            print("No file anem given!")
+            return
+        
+        # add json extension to file name if not there already
+        # TODO check for other extensions and correct them
+        if ('.json' not in str(backup_file_name)):
+            backup_file_name = 'scans//' + str(backup_file_name) + '.json'
+        
+        # cache success notification 
+        success = OkWindow("Backup file successfully overwritten!",
+                            "Backup Success",
+                            False,
+                            None,
+                            False
+                        )
+        
+        # cache callbacks for writing scans and showing the success dialog
+        writeScans = lambda: self.__write_scans_to(backup_file_name)
+        showSuccess = lambda: success.exec()
+        
+        # if target backup file already exists
+        if (isfile(backup_file_name)):
+            # display confirm window for overwriting backup file
+            conf = ConfirmWindow(f"Do you want to overwrite backup file {backup_file_name}?",
+                                "Overwrite Backup File",
+                                True,
+                                lambda: [
+                                    writeScans(), 
+                                    showSuccess()
+                                    ],
+                                None
+                            )
+        else: # if writing new file, write file
+            writeScans()
+            success.ui.label.setText("Backup file successfully written!")
+            showSuccess()
 
     @QtCore.pyqtSlot()
     def toggle_scan_listen(self):

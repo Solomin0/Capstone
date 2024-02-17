@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(629, 434)
+        MainWindow.resize(655, 455)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         font = QtGui.QFont()
         font.setPointSize(8)
@@ -237,7 +237,7 @@ class Ui_MainWindow(object):
         font.setKerning(True)
         self.vs_scans_table.setFont(font)
         self.vs_scans_table.setObjectName("vs_scans_table")
-        self.vs_scans_table.setColumnCount(5)
+        self.vs_scans_table.setColumnCount(6)
         self.vs_scans_table.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         self.vs_scans_table.setHorizontalHeaderItem(0, item)
@@ -249,6 +249,8 @@ class Ui_MainWindow(object):
         self.vs_scans_table.setHorizontalHeaderItem(3, item)
         item = QtWidgets.QTableWidgetItem()
         self.vs_scans_table.setHorizontalHeaderItem(4, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.vs_scans_table.setHorizontalHeaderItem(5, item)
         self.vs_scans_table.horizontalHeader().setStretchLastSection(False)
         self.gridLayout_2.addWidget(self.vs_scans_table, 1, 0, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
@@ -304,6 +306,7 @@ class Ui_MainWindow(object):
         self.vs_del_last_btn.clicked.connect(self.vs_scans_table.try_del_last_edited_row) # type: ignore
         self.main_screen_stack.currentChanged['int'].connect(self.vs_scans_table.clear) # type: ignore
         self.vs_new_scan_btn.clicked.connect(MainWindow.toggle_scan_listen) # type: ignore
+        self.vs_backup_btn.clicked.connect(MainWindow.try_backup_scans) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.mm_new_scan_btn, self.mm_sync_db_btn)
         MainWindow.setTabOrder(self.mm_sync_db_btn, self.mm_view_scans_btn)
@@ -330,9 +333,11 @@ class Ui_MainWindow(object):
         item = self.vs_scans_table.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Location"))
         item = self.vs_scans_table.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "Timestamp"))
+        item.setText(_translate("MainWindow", "Time Created"))
         item = self.vs_scans_table.horizontalHeaderItem(4)
-        item.setText(_translate("MainWindow", "Price"))
+        item.setText(_translate("MainWindow", "Time Modified"))
+        item = self.vs_scans_table.horizontalHeaderItem(5)
+        item.setText(_translate("MainWindow", "EOL Date"))
         self.vs_reset_btn.setText(_translate("MainWindow", "Reset"))
         self.vs_del_last_btn.setText(_translate("MainWindow", "Delete Last Edited"))
         self.vs_save_btn.setText(_translate("MainWindow", "Save"))

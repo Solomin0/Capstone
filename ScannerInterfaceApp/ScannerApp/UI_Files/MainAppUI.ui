@@ -557,7 +557,7 @@
    <slot>add_row()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>572</x>
+     <x>554</x>
      <y>46</y>
     </hint>
     <hint type="destinationlabel">
@@ -573,8 +573,8 @@
    <slot>try_save_changes()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>643</x>
-     <y>394</y>
+     <x>625</x>
+     <y>404</y>
     </hint>
     <hint type="destinationlabel">
      <x>510</x>
@@ -589,8 +589,8 @@
    <slot>reset_table()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>81</x>
-     <y>376</y>
+     <x>101</x>
+     <y>404</y>
     </hint>
     <hint type="destinationlabel">
      <x>96</x>
@@ -605,8 +605,8 @@
    <slot>try_del_last_edited_row()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>371</y>
+     <x>249</x>
+     <y>404</y>
     </hint>
     <hint type="destinationlabel">
      <x>180</x>
@@ -637,8 +637,8 @@
    <slot>toggle_scan_listen()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>653</x>
-     <y>45</y>
+     <x>635</x>
+     <y>46</y>
     </hint>
     <hint type="destinationlabel">
      <x>466</x>
@@ -646,8 +646,25 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>vs_backup_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>try_backup_scans()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>89</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>5</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>toggle_scan_listen()</slot>
+  <slot>try_backup_scans()</slot>
  </slots>
 </ui>

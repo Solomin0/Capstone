@@ -2,6 +2,7 @@
 from PyQt6 import QtCore, QtWidgets
 from .ConfirmUI import Ui_DialogConfirm
 from.OkUI import Ui_DialogOk
+from .BackupInputUI import Ui_BackupFileInput
 from copy import deepcopy
 
 
@@ -34,7 +35,7 @@ class StatusBar(QtWidgets.QStatusBar):
 
 class Popup(QtWidgets.QDialog):
     '''Base class for all dialogs'''
-    def __init__(self, ui: type, label_text: str, window_text: str, set_modal: bool, *args, **kwargs):
+    def __init__(self, ui: type, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setModal(set_modal)
         self.ui = ui()
@@ -42,22 +43,29 @@ class Popup(QtWidgets.QDialog):
         self.ui.label.setText(label_text)
         self.setWindowTitle(window_text)
 
+        # connect passed accept/reject signals to dialog slots
+        if (on_accept != None): self.accepted.connect(on_accept)
+        if (on_reject != None): self.rejected.connect(on_reject)
+        
+        if auto_exec: self.exec()
+
 
 class OkWindow(Popup):
     '''Notification (Ok) Dialog Box'''
-    def __init__(self, label_text: str, window_text: str, set_modal: bool, on_ok, *args, **kwargs):
-        super().__init__(Ui_DialogOk, label_text, window_text, set_modal, *args, **kwargs)
-        if (on_ok != None): self.accepted.connect(on_ok)
-        self.exec()
-        
+    def __init__(self, label_text: str, window_text: str, set_modal: bool, on_ok, auto_exec: bool = True, *args, **kwargs):
+        super().__init__(Ui_DialogOk, label_text, window_text, set_modal, on_ok, None, auto_exec, *args, **kwargs)
+    
 
 class ConfirmWindow(Popup):
     '''Confirmation dialog box'''
-    def __init__(self, label_text:str, window_text: str, set_modal: bool, on_accept, on_reject, *args, **kwargs):
-        super().__init__(Ui_DialogConfirm, label_text, window_text, set_modal, *args, **kwargs)
-        if (on_accept != None): self.accepted.connect(on_accept)
-        if (on_reject != None): self.rejected.connect(on_reject)
-        self.exec()
+    def __init__(self, label_text:str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
+        super().__init__(Ui_DialogConfirm, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
+
+class InputWindow(Popup):
+    '''Single line input dialog box'''
+    def __init__(self, label_text: str, window_text: str, default_input_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
+        super().__init__(Ui_BackupFileInput, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
+        self.ui.input.setText(default_input_text)
 
 
 class StackedWidget(QtWidgets.QStackedWidget):
