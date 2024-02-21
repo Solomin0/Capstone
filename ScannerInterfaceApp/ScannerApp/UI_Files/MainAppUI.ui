@@ -662,9 +662,43 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>vs_add_row_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>disable_scan_listen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>510</x>
+     <y>32</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>345</x>
+     <y>5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vs_sync_db_btn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sync_db_btn_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>164</x>
+     <y>36</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>46</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>toggle_scan_listen()</slot>
   <slot>try_backup_scans()</slot>
+  <slot>disable_scan_listen()</slot>
+  <slot>sync_db_btn_clicked()</slot>
  </slots>
 </ui>

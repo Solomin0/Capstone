@@ -1,7 +1,8 @@
 '''Custom child classes of QT widgets so custom slots can be added'''
 from PyQt6 import QtCore, QtWidgets
 from .ConfirmUI import Ui_DialogConfirm
-from.OkUI import Ui_DialogOk
+from .DBSyncLoginUI import Ui_DBSyncLogin
+from .OkUI import Ui_DialogOk
 from .BackupInputUI import Ui_BackupFileInput
 from copy import deepcopy
 
@@ -14,24 +15,34 @@ class PushButton(QtWidgets.QPushButton):
 class StatusBar(QtWidgets.QStatusBar):
     '''Custom status bar'''
     # status bar refresh inverval in seconds
-    __refresh_interval = 0.5
+    __refresh_interval = 0.2
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # setup and run thread for updating status
         self.__refresh_status()
 
+    def force_refresh(self):
+        '''Forces Status Bar UI refresh'''
+        self.__populate_status()
+        QtWidgets.QApplication.processEvents()
+
     @QtCore.pyqtSlot()
     def __refresh_status(self):
         '''Periodically refresh status bar'''
+        self.__populate_status()
+         # call method again every tick of the app internal clock
+        # slightly delayed due to internal clock being init'd before statusbar obj
+        # print("Status bar refreshed!")
+        QtCore.QTimer.singleShot(int(self.__refresh_interval*1000), self.__refresh_status)
+
+    def __populate_status(self):
+        '''Handle populating status bar ui with target string(s)'''
         if (self.parentWidget().sub_status == "" or self.parentWidget().sub_status == None):
             self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status}')
         else:
             self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status} - {self.parentWidget().sub_status}')
-        # call method again every tick of the app internal clock
-        # slightly delayed due to internal clock being init'd before statusbar obj
-        # print("Status bar refreshed!")
-        QtCore.QTimer.singleShot(int(self.__refresh_interval*1000), self.__refresh_status)
+
 
 class Popup(QtWidgets.QDialog):
     '''Base class for all dialogs'''
@@ -49,12 +60,11 @@ class Popup(QtWidgets.QDialog):
         
         if auto_exec: self.exec()
 
-
+############ POPUPS
 class OkWindow(Popup):
     '''Notification (Ok) Dialog Box'''
     def __init__(self, label_text: str, window_text: str, set_modal: bool, on_ok, auto_exec: bool = True, *args, **kwargs):
         super().__init__(Ui_DialogOk, label_text, window_text, set_modal, on_ok, None, auto_exec, *args, **kwargs)
-    
 
 class ConfirmWindow(Popup):
     '''Confirmation dialog box'''
@@ -66,17 +76,24 @@ class InputWindow(Popup):
     def __init__(self, label_text: str, window_text: str, default_input_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
         super().__init__(Ui_BackupFileInput, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
         self.ui.input.setText(default_input_text)
+############ END POPUPS
 
+class DBConnectWindow(Popup):
+    '''Dialog box for establishing connection to database'''
+    def __init__(self, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
+        super().__init__(Ui_DBSyncLogin, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
 
 class StackedWidget(QtWidgets.QStackedWidget):
     '''Custom stacked widget'''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+'''
 class Dialog(QtWidgets.QDialog):
-    '''Custom dialog window'''
+    Custom dialog window
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+'''
 
 class Table(QtWidgets.QTableWidget):
     '''Custom table widget'''

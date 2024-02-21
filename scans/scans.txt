@@ -9,13 +9,5 @@
  {
   "serial_number": "1224",
   "short_desc": "Desktop"
- },
- {
-  "serial_number": "default",
-  "short_desc": "tablet"
- },
- {
-  "serial_number": "444",
-  "short_desc": "test"
  }
 ]

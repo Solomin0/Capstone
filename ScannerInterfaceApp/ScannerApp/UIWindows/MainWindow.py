@@ -1,5 +1,6 @@
+from mysql import connector as sql_connector
 from PyQt6 import QtWidgets, QtCore
-from .uielements import InputWindow, ConfirmWindow, OkWindow
+from .uielements import InputWindow, ConfirmWindow, OkWindow, DBConnectWindow
 from .MainAppUI import Ui_MainWindow
 from os import mkdir
 from os.path import isfile, isdir
@@ -18,6 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
     __version_no = 'v0.0.1'
     __status = "Unitialized"
     __sub_status = ""
+    __db_handle = None
     # end fields
 
     # properties
@@ -113,7 +115,6 @@ class MainWindow(QtWidgets.QMainWindow):
             else: # if scans dict is None or empty
                 # write empty file with file heading
                 f.writelines(self.file_heading)
-
 
     def write_scans(self) -> None:
         '''Write runtime scans dict to file'''
@@ -265,14 +266,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.hearing_scans = not self.hearing_scans
         self.update_scan_status()
 
-    def enable_scan_listen(self):
-        '''Enable listening for new scans'''
-        self.hearing_scans = True
-        self.update_scan_status()
-    
+    @QtCore.pyqtSlot()
     def disable_scan_listen(self):
         "Disable listening for new scans"
         self.hearing_scans = False
+        self.update_scan_status()
+
+    def enable_scan_listen(self):
+        '''Enable listening for new scans'''
+        self.hearing_scans = True
         self.update_scan_status()
 
     def update_scan_status(self):
@@ -286,5 +288,93 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def register_scan(self, serial_no):
         '''Get scan data, convert it to a new row entry or update it if exists'''
-        # TODO 
-        pass
+        if self.hearing_scans: # only register scan if hearing scans
+            # TODO 
+            pass
+
+    @QtCore.pyqtSlot()
+    def sync_db_btn_clicked(self):
+        '''Register scan button clicked signal'''
+        # if application is not currently connected to the database
+        if self.__db_handle == None or not self.__db_handle.is_connected():
+            login_screen = DBConnectWindow(
+                'Establish Database Connection',
+                'Database Login',
+                True,
+                None,
+                None,
+                False
+            )
+
+            # defining action for clicking connect button in db conect window
+            @QtCore.pyqtSlot()
+            def on_connect():
+                '''Validate input and try connecting to db'''
+                host = login_screen.ui.db_host_nameip_input.text()
+                port = login_screen.ui.db_port_input.text()
+                database = login_screen.ui.db_name_input.text()
+                user = login_screen.ui.username_input.text()
+                pwd = login_screen.ui.password_input.text()
+                
+                previous_sub_status = self.sub_status
+                self.set_sub_status("Connecting to database...")
+                self.ui.statusbar.force_refresh()
+
+                # validate input
+                # if host is invalid
+                if host == None or host == "":
+                    OkWindow("No host given", "Invalid Host", True, None)
+                # if a port is entered but not a number, notify user
+                elif (port != None or port != "") and not str.isdigit(port):
+                    OkWindow("Invalid port number given", "Invalid Port Number", True, None)
+                elif database == None or database == "":
+                    OkWindow("Invalid database name given", "Invalid Database Name", True, None)
+                elif self.__connect_to_db(host, port, database, user, pwd): # validation success, connection success
+                    self.set_sub_status("Connected To Database")
+                    self.ui.statusbar.force_refresh()
+                    OkWindow("Connection Successful", "Connected to DB", True, None)
+                else: # validation success, connection failed
+                    self.set_sub_status("Connection Failed")
+                    self.ui.statusbar.force_refresh()
+                    OkWindow("Cannot Connect to host: " + host, "Connection Failed", True, None)
+                    self.set_sub_status(previous_sub_status)
+                    self.ui.statusbar.force_refresh()
+                    # clear all input fields
+                    # login_screen.ui.reset_btn.clicked() 
+
+            login_screen.accepted.connect(on_connect)
+            login_screen.exec()
+
+        else: # if already connected
+            OkWindow(
+                'No database connected.',
+                'Redundant disconnection',
+                True,
+                None,
+            )
+
+    
+    def __connect_to_db(self, host: str, port :str, db_name: str, username: str, password: str) -> bool:
+        '''Establish connection to DB and return connection handle'''
+        if port == None or port == "": # use default port if none specified
+            port = 3306
+        try:
+            db_handle = sql_connector.connect(
+                host=host,
+                port=port,
+                database=db_name,
+                user=username,
+                password=password
+            )
+            self.__db_handle = db_handle
+            return True
+        except sql_connector.errors.DatabaseError:
+            return False
+
+    def __disconnect_from_db(self):
+        '''End connection to DB'''
+        # if db handle is already none
+        if self.__db_handle != None:
+            self.__db_handle.disconnect()
+            self.__db_handle = None
+        
