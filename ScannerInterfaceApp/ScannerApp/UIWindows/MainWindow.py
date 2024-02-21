@@ -37,7 +37,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
     @property
     def db_connected(self) -> bool:
-        return self.__db_handle == None or not self.__db_handle.is_connected()
+        return self.__db_handle != None and self.__db_handle.is_connected()
     # end properties
 
     @classmethod
@@ -339,9 +339,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 elif database == None or database == "":
                     OkWindow("Invalid database name given", "Invalid Database Name", True, None)
                 elif self.__connect_to_db(host, port, database, user.lower(), pwd): # validation success, connection success
+                    self.disable_scan_listen() # turn off scan listening if on
                     self.set_sub_status("Connected To Database")
                     self.ui.statusbar.force_refresh()
-                    self.disable_scan_listen() # turn off scan listening if on
                     OkWindow("Connection Successful", "Connected to DB", True, None)
                 else: # validation success, connection failed
                     self.set_sub_status("Connection Failed")
