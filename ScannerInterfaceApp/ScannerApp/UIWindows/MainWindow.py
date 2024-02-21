@@ -34,6 +34,10 @@ class MainWindow(QtWidgets.QMainWindow):
     @property
     def sub_status(self) -> str:
         return self.__sub_status
+    
+    @property
+    def db_connected(self) -> bool:
+        return self.__db_handle == None or not self.__db_handle.is_connected()
     # end properties
 
     @classmethod
@@ -263,8 +267,12 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def toggle_scan_listen(self):
         '''Toggle app listening for new scans'''
-        self.hearing_scans = not self.hearing_scans
-        self.update_scan_status()
+        # cannot enable scan hearing while db is connected
+        if not self.hearing_scans and self.db_connected:
+            pass
+        else:
+            self.hearing_scans = not self.hearing_scans
+            self.update_scan_status()
 
     @QtCore.pyqtSlot()
     def disable_scan_listen(self):
@@ -274,8 +282,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def enable_scan_listen(self):
         '''Enable listening for new scans'''
-        self.hearing_scans = True
-        self.update_scan_status()
+        if not self.db_connected:
+            self.hearing_scans = True
+            self.update_scan_status()
 
     def update_scan_status(self):
         '''Updates text/color on scans button'''
@@ -332,6 +341,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 elif self.__connect_to_db(host, port, database, user.lower(), pwd): # validation success, connection success
                     self.set_sub_status("Connected To Database")
                     self.ui.statusbar.force_refresh()
+                    self.disable_scan_listen() # turn off scan listening if on
                     OkWindow("Connection Successful", "Connected to DB", True, None)
                 else: # validation success, connection failed
                     self.set_sub_status("Connection Failed")
