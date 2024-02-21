@@ -339,7 +339,9 @@ class Table(QtWidgets.QTableWidget):
     @QtCore.pyqtSlot()
     def add_row(self):
         '''Add an empty scan table row'''
-        self.insertRow(self.rowCount())
+        previous_row_serial = self.item(self.rowCount() - 1, 0)
+        if  previous_row_serial != None and previous_row_serial.text() != ("" or None):
+            self.insertRow(self.rowCount())
 
 
     def __del_last_edited_row(self):
