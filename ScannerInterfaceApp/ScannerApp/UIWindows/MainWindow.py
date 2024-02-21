@@ -325,18 +325,22 @@ class MainWindow(QtWidgets.QMainWindow):
                 if host == None or host == "":
                     OkWindow("No host given", "Invalid Host", True, None)
                 # if a port is entered but not a number, notify user
-                elif (port != None or port != "") and not str.isdigit(port):
+                elif (port != None and port != "") and not str.isdigit(port):
                     OkWindow("Invalid port number given", "Invalid Port Number", True, None)
                 elif database == None or database == "":
                     OkWindow("Invalid database name given", "Invalid Database Name", True, None)
-                elif self.__connect_to_db(host, port, database, user, pwd): # validation success, connection success
+                elif self.__connect_to_db(host, port, database, user.lower(), pwd): # validation success, connection success
                     self.set_sub_status("Connected To Database")
                     self.ui.statusbar.force_refresh()
                     OkWindow("Connection Successful", "Connected to DB", True, None)
                 else: # validation success, connection failed
                     self.set_sub_status("Connection Failed")
                     self.ui.statusbar.force_refresh()
-                    OkWindow("Cannot Connect to host: " + host, "Connection Failed", True, None)
+                    label_port = port
+                    if (port == "" or port == None):
+                        label_port = str(3306)
+                    label_text = f"Cannot connect to database\nHost: {host}\nPort: {label_port}\nUsername: {user}"
+                    OkWindow(label_text, "Connection Failed", True, None)
                     self.set_sub_status(previous_sub_status)
                     self.ui.statusbar.force_refresh()
                     # clear all input fields
