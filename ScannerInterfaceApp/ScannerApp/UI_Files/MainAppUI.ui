@@ -344,7 +344,7 @@
           <item>
            <widget class="PushButton" name="vs_add_row_btn">
             <property name="text">
-             <string>Add Row</string>
+             <string>Add Blank Row</string>
             </property>
            </widget>
           </item>

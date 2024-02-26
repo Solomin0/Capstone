@@ -44,6 +44,8 @@ class Ui_DBSyncLogin(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.db_name_input.sizePolicy().hasHeightForWidth())
         self.db_name_input.setSizePolicy(sizePolicy)
+        self.db_name_input.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
+        self.db_name_input.setClearButtonEnabled(False)
         self.db_name_input.setObjectName("db_name_input")
         self.verticalLayout_4.addWidget(self.db_name_input)
         self.gridLayout.addLayout(self.verticalLayout_4, 4, 0, 1, 1)

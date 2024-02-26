@@ -325,7 +325,7 @@ class Ui_MainWindow(object):
         self.ns_back_btn.setText(_translate("MainWindow", "Back"))
         self.vs_backup_btn.setText(_translate("MainWindow", "Backup Scans"))
         self.vs_sync_db_btn.setText(_translate("MainWindow", "Sync Database"))
-        self.vs_add_row_btn.setText(_translate("MainWindow", "Add Row"))
+        self.vs_add_row_btn.setText(_translate("MainWindow", "Add Blank Row"))
         self.vs_new_scan_btn.setText(_translate("MainWindow", "Scan"))
         self.groupBox.setTitle(_translate("MainWindow", "Current Scans"))
         item = self.vs_scans_table.horizontalHeaderItem(0)

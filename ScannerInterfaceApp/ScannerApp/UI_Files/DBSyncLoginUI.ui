@@ -72,6 +72,12 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
     </layout>

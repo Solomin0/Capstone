@@ -76,13 +76,13 @@ class InputWindow(Popup):
     def __init__(self, label_text: str, window_text: str, default_input_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
         super().__init__(Ui_BackupFileInput, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
         self.ui.input.setText(default_input_text)
-############ END POPUPS
 
 class DBConnectWindow(Popup):
     '''Dialog box for establishing connection to database'''
     def __init__(self, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
         super().__init__(Ui_DBSyncLogin, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
-
+############ END POPUPS
+        
 class StackedWidget(QtWidgets.QStackedWidget):
     '''Custom stacked widget'''
     def __init__(self, *args, **kwargs):
