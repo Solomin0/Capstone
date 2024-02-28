@@ -302,7 +302,9 @@ class Table(QtWidgets.QTableWidget):
                 # if found blank row, delete it
                 if key == None or len(self.working_data[key].values()) == 0:
                     del self.working_data[key]
-
+            # disable scan listen if on
+            if self.window().hearing_scans:
+                self.window().disable_scan_listen()
             # copy working data w changes over to runtime dict      
             self.window().scans = deepcopy(self.working_data)
             self.window().write_scans()
