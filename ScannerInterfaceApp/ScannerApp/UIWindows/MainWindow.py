@@ -384,6 +384,8 @@ class MainWindow(QtWidgets.QMainWindow):
             login_screen.accepted.connect(on_connect)
             login_screen.exec()
 
+    ''' TODO MUST HANDLE DUPLICATE SCANS CONFLICTS PRIOR TO PUSHING TO DB'''
+
     def __connect_to_db(self, host: str, port :str, db_name: str, username: str, password: str) -> bool:
         '''Establish connection to DB and return connection handle'''
         if port == None or port == "": # use default port if none specified
