@@ -340,7 +340,7 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "Time Modified"))
         item = self.vs_scans_table.horizontalHeaderItem(5)
         item.setText(_translate("MainWindow", "EOL Date"))
-        self.vs_reset_btn.setText(_translate("MainWindow", "Reset"))
+        self.vs_reset_btn.setText(_translate("MainWindow", "Reset Changes"))
         self.vs_del_last_btn.setText(_translate("MainWindow", "Delete Last Edited"))
         self.vs_save_btn.setText(_translate("MainWindow", "Save"))
         self.actionBackup_Scans.setText(_translate("MainWindow", "Backup Scans"))

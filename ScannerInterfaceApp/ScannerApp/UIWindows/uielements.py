@@ -12,6 +12,7 @@ class PushButton(QtWidgets.QPushButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+
 class StatusBar(QtWidgets.QStatusBar):
     '''Custom status bar'''
     # status bar refresh inverval in seconds
@@ -60,7 +61,8 @@ class Popup(QtWidgets.QDialog):
         
         if auto_exec: self.exec()
 
-############ POPUPS
+
+############ CUSTOM POPUPS
 class OkWindow(Popup):
     '''Notification (Ok) Dialog Box'''
     def __init__(self, label_text: str, window_text: str, set_modal: bool, on_ok, auto_exec: bool = True, *args, **kwargs):
@@ -81,19 +83,13 @@ class DBConnectWindow(Popup):
     '''Dialog box for establishing connection to database'''
     def __init__(self, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
         super().__init__(Ui_DBSyncLogin, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
-############ END POPUPS
-        
+############ END CUSTOM POPUPS
+
+     
 class StackedWidget(QtWidgets.QStackedWidget):
     '''Custom stacked widget'''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-'''
-class Dialog(QtWidgets.QDialog):
-    Custom dialog window
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-'''
 
 class Table(QtWidgets.QTableWidget):
     '''Custom table widget'''
@@ -342,6 +338,7 @@ class Table(QtWidgets.QTableWidget):
         previous_row_serial = self.item(self.rowCount() - 1, 0)
         if  previous_row_serial != None and previous_row_serial.text() != ("" or None):
             self.insertRow(self.rowCount())
+            QtWidgets.QApplication.processEvents()
 
 
     def __del_last_edited_row(self):

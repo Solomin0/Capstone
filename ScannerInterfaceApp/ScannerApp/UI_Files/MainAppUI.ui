@@ -426,7 +426,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>Reset</string>
+                <string>Reset Changes</string>
                </property>
               </widget>
              </item>

@@ -20,6 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
     __status = "Unitialized"
     __sub_status = ""
     __db_handle = None
+    __scan_polling_interval = 0.05
     # end fields
 
     # properties
@@ -270,9 +271,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # cannot enable scan hearing while db is connected
         if not self.hearing_scans and self.db_connected:
             pass
+        elif self.hearing_scans:
+            self.disable_scan_listen()
         else:
-            self.hearing_scans = not self.hearing_scans
-            self.update_scan_status()
+            self.enable_scan_listen()
 
     @QtCore.pyqtSlot()
     def disable_scan_listen(self):
@@ -285,6 +287,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.db_connected:
             self.hearing_scans = True
             self.update_scan_status()
+            self.__do_register_scans()
 
     def update_scan_status(self):
         '''Updates text/color on scans button'''
@@ -295,17 +298,39 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.vs_new_scan_btn.setText("Scan")
             self.set_sub_status("")
 
-    def register_scan(self, serial_no):
+    def __do_register_scans(self):
         '''Get scan data, convert it to a new row entry or update it if exists'''
         if self.hearing_scans: # only register scan if hearing scans
-            # TODO 
-            pass
+            # add new blank row if needed 
+            self.ui.vs_scans_table.add_row()
+            # get row index of newly added row
+            targ_row = self.ui.vs_scans_table.rowCount() - 1
+            
+            # make table the focused widget
+            self.ui.vs_scans_table.setFocus()
+
+            # select current row to editing
+            self.ui.vs_scans_table.setCurrentCell(targ_row, 0)
+
+            # wait for enough text to be entered into serial number cell before refreshing scan listen 
+            new_cell = self.ui.vs_scans_table.item(targ_row, 0)
+            while new_cell == None or len(new_cell.text()) < 1:
+                new_cell = self.ui.vs_scans_table.item(targ_row, 0)
+                QtWidgets.QApplication.processEvents()
+            QtCore.QTimer.singleShot(int(self.__scan_polling_interval*1000), self.__do_register_scans)
 
     @QtCore.pyqtSlot()
     def sync_db_btn_clicked(self):
         '''Register scan button clicked signal'''
-        # if application is not currently connected to the database
-        if self.__db_handle == None or not self.__db_handle.is_connected():
+        # if application is already connected to the database
+        if self.__db_handle != None and self.__db_handle.is_connected():
+            OkWindow(
+                'No database connected.',
+                'Redundant disconnection',
+                True,
+                None,
+            )
+        else: # if not already connected
             login_screen = DBConnectWindow(
                 'Establish Database Connection',
                 'Database Login',
@@ -338,7 +363,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     OkWindow("Invalid port number given", "Invalid Port Number", True, None)
                 elif database == None or database == "":
                     OkWindow("Invalid database name given", "Invalid Database Name", True, None)
-                elif self.__connect_to_db(host, port, database, user.lower(), pwd): # validation success, connection success
+                elif self.__connect_to_db(host, port, database, user, pwd): # validation success, connection success
                     self.disable_scan_listen() # turn off scan listening if on
                     self.set_sub_status("Connected To Database")
                     self.ui.statusbar.force_refresh()
@@ -359,15 +384,6 @@ class MainWindow(QtWidgets.QMainWindow):
             login_screen.accepted.connect(on_connect)
             login_screen.exec()
 
-        else: # if already connected
-            OkWindow(
-                'No database connected.',
-                'Redundant disconnection',
-                True,
-                None,
-            )
-
-    
     def __connect_to_db(self, host: str, port :str, db_name: str, username: str, password: str) -> bool:
         '''Establish connection to DB and return connection handle'''
         if port == None or port == "": # use default port if none specified
