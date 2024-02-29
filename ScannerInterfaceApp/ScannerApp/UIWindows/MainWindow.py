@@ -6,11 +6,12 @@ from os import mkdir
 from os.path import isfile, isdir
 from json import loads, dumps
 from datetime import datetime
+from copy import deepcopy
 
 class MainWindow(QtWidgets.QMainWindow):
     '''Main window running ui'''
      # fields
-    scans = {} # dict of dicts where serial no is key
+    scans = {} # dict of dicts where asset_tag_number is key
     hearing_scans = False # whether app is listening for scans
     file_path = "scans//scans.txt"
     file_heading = '# Test file generated\n# test comment\n#############################\n'
@@ -21,6 +22,7 @@ class MainWindow(QtWidgets.QMainWindow):
     __sub_status = ""
     __db_handle = None
     __scan_polling_interval = 0.05
+    __auto_push_scans = False # whether app-side item data is pushed to db without a user comparison
     # end fields
 
     # properties
@@ -68,25 +70,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.try_populate_scan_file()
             self.read_scans()
 
-        # DEBUG PRINT RUNTIME SCANS LIST
-        print(self.scans)
-
-        self.goto_screen(2) # start at view scans screen
-        self.connect_persistent_elements() # connect slots to persistent ui elements
         self.set_status("Running") # application is now running
         
     def try_populate_scan_file(self):
         '''Populate scans file with default values'''
         new_scan = {
-            "serial_number": '12345',
-            "short_desc": "laptop"
+            "asset_tag_number": '12345',
+            "description": "laptop"
         }
         new_scan1 = {
-            'serial_number': '1224',
+            'asset_tag_number': '1224',
             'short_desc': 'Desktop'
         }
-        self.scans[new_scan['serial_number']] = new_scan
-        self.scans[new_scan1['serial_number']] = new_scan1
+        self.scans[new_scan['asset_tag_number']] = new_scan
+        self.scans[new_scan1['asset_tag_number']] = new_scan1
 
         # try default values to scans file
         self.write_scans()
@@ -158,25 +155,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 # iterate thru scan dicts
                 for scan_dict in scans:
-                    # add scan record to runtime dict with serial number (unique) as key
-                    self.scans[scan_dict['serial_number']] = scan_dict  
+                    # add scan record to runtime dict with asset tag number (unique) as key
+                    self.scans[scan_dict['asset_tag_number']] = scan_dict  
 
     def read_scans(self):
         '''Read scans from file to runtime scans dict'''
         self.__read_scans_from(self.file_path)
-
-    def connect_persistent_elements(self):
-        '''Maps custom signals to slots that cannot be directly mapped in Qt Designer'''
-        ### Main Menu
-        self.ui.mm_new_scan_btn.clicked.connect(lambda: self.goto_screen(1))
-        self.ui.mm_view_scans_btn.clicked.connect(lambda: self.goto_screen(2))
-        
-        ### New Scan
-        self.ui.ns_back_btn.clicked.connect(lambda: self.goto_screen(0))
-
-        ### View Scans
-        # self.ui.vs_new_scan_btn.clicked.connect(lambda: ) # new scan btn
-        # self.ui.vs_del_last_btn.clicked.connect(lambda: self.goto_screen(0)) # bck btn
 
     @QtCore.pyqtSlot(int)
     def goto_screen(self, value: int):
@@ -217,7 +201,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     False
                 )
         
-        # hacky af
+        # hacky approach but achieves desired result
         # manually connecting inputWin dialog on_accept callback for inputWindow after its definition
         # to get around not referencing inputWin var within its own obj definition
         getText = inputWin.ui.input.text
@@ -280,16 +264,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def disable_scan_listen(self):
         "Disable listening for new scans"
         self.hearing_scans = False
-        self.update_scan_status()
+        self.__update_scan_status()
 
     def enable_scan_listen(self):
         '''Enable listening for new scans'''
         if not self.db_connected:
             self.hearing_scans = True
-            self.update_scan_status()
+            self.__update_scan_status()
             self.__do_register_scans()
 
-    def update_scan_status(self):
+    def __update_scan_status(self):
         '''Updates text/color on scans button'''
         if self.hearing_scans:
             self.ui.vs_new_scan_btn.setText("Scanning")
@@ -312,7 +296,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # select current row to editing
             self.ui.vs_scans_table.setCurrentCell(targ_row, 0)
 
-            # wait for enough text to be entered into serial number cell before refreshing scan listen 
+            # wait for enough text to be entered into asset_tag_number cell before refreshing scan listen 
             new_cell = self.ui.vs_scans_table.item(targ_row, 0)
             while new_cell == None or len(new_cell.text()) < 1:
                 new_cell = self.ui.vs_scans_table.item(targ_row, 0)
@@ -321,18 +305,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def sync_db_btn_clicked(self):
-        '''Register scan button clicked signal'''
+        '''Register connected to database button clicked'''
         # disable scan listen if on
         if self.window().hearing_scans:
             self.window().disable_scan_listen()
             
         # if application is already connected to the database
-        if self.__db_handle != None and self.__db_handle.is_connected():
+        if self.db_connected:
             OkWindow(
-                'No database connected.',
-                'Redundant disconnection',
+                'Database already connected. Force DB Disconnect?',
+                'Database already connected',
                 True,
-                None,
+                self.__disconnect_from_db,
             )
         else: # if not already connected
             login_screen = DBConnectWindow(
@@ -367,11 +351,19 @@ class MainWindow(QtWidgets.QMainWindow):
                     OkWindow("Invalid port number given", "Invalid Port Number", True, None)
                 elif database == None or database == "":
                     OkWindow("Invalid database name given", "Invalid Database Name", True, None)
-                elif self.__connect_to_db(host, port, database, user, pwd): # validation success, connection success
+                elif self.__try_connect_to_db(host, port, database, user, pwd): # validation success, connection success
                     self.disable_scan_listen() # turn off scan listening if on
                     self.set_sub_status("Connected To Database")
                     self.ui.statusbar.force_refresh()
-                    OkWindow("Connection Successful", "Connected to DB", True, None)
+                    
+                    # successfully connected to target database, can now sync
+                    ConfirmWindow("Connection Successful\nContinue with DB Sync?", 
+                                  "Start Database Sync?", 
+                                  True,
+                                  self.__sync_with_db,
+                                  self.__disconnect_from_db()
+                                  )
+                
                 else: # validation success, connection failed
                     self.set_sub_status("Connection Failed")
                     self.ui.statusbar.force_refresh()
@@ -388,9 +380,56 @@ class MainWindow(QtWidgets.QMainWindow):
             login_screen.accepted.connect(on_connect)
             login_screen.exec()
 
-    ''' TODO MUST HANDLE DUPLICATE SCANS CONFLICTS PRIOR TO PUSHING TO DB'''
+    def __sync_with_db(self):
+        '''
+        Handle pushing updated versions of items onto DB.
+        Prompts user to select from duplicates. 
+        TODO MUST HANDLE DUPLICATE SCANS CONFLICTS PRIOR TO PUSHING TO DB'
+        '''
+        # if db is not connected
+        if not self.db_connected:
+            OkWindow("No DB connection detected. Cannot sync.",
+                     "No database connected",
+                     True,
+                     None
+                     ) 
+        else: # if connected to a db
+            # TODO check if there is an ITEM table in this 
+            # get db handle's cursor and reset it
+            cursor = self.__db_handle.cursor()
+            cursor.reset()
+            # query db ITEM table contents
+            cursor.execute('SELECT * FROM ITEM')
+            # cache raw results
+            db_data_raw = cursor.fetchall()
+            # translate SQL to list of dicts for app use
+            pull_working_data = self.__parse_db_to_json(db_data_raw)
+            # iterate through app-side item data
+            for asset_tag_no in self.scans:
+                # if db has item entry with same asset tag number
+                if asset_tag_no in pull_working_data.keys():
+                    if self.__auto_push_scans:
+                        # TODO replace entry in pull working data with app scans entry
+                        pass
+                    else: 
+                        # TODO show user comparison window
+                        pass
+                else: # if db does not already have item in it
+                    # copy item entry into working data
+                    pull_working_data[asset_tag_no] = deepcopy(self.scans[asset_tag_no])
 
-    def __connect_to_db(self, host: str, port :str, db_name: str, username: str, password: str) -> bool:
+            # copy pull working data back to app-side scans
+            self.scans = deepcopy(pull_working_data)
+                    
+            # translate dict of dicts working data back into SQL-readable data
+            push_working_data = self.__parse_json_to_db(pull_working_data)    
+
+            # iterate through push data and replace it in db ITEM table    
+            for item_data in push_working_data:
+                # TODO sql -> replace item data with corresponding asset tag number with item_data
+                break
+
+    def __try_connect_to_db(self, host: str, port :str, db_name: str, username: str, password: str) -> bool:
         '''Establish connection to DB and return connection handle'''
         if port == None or port == "": # use default port if none specified
             port = 3306
@@ -413,4 +452,22 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.__db_handle != None:
             self.__db_handle.disconnect()
             self.__db_handle = None
-        
+            OkWindow("Database successfully disconnected.",
+                     "Database Disconnected sucessfully",
+                     True,
+                     None
+                     )
+    
+    def __parse_db_to_json(self) -> list[dict]:
+        '''Translate db data to locally stored JSON data'''
+        if not self.db_connected: 
+            OkWindow("Not connected to any database!",
+                     "No Database Connection Detected",
+                     True,
+                     None)
+        else: # if connected to the db
+            pass
+
+    def __parse_json_to_db(self) -> list[list]:
+        '''Translate local JSON data to db-compliant data'''
+        pass
