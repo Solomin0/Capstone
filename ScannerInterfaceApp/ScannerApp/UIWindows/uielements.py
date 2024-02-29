@@ -302,9 +302,6 @@ class Table(QtWidgets.QTableWidget):
                 # if found blank row, delete it
                 if key == None or len(self.working_data[key].values()) == 0:
                     del self.working_data[key]
-            # disable scan listen if on
-            if self.window().hearing_scans:
-                self.window().disable_scan_listen()
             # copy working data w changes over to runtime dict      
             self.window().scans = deepcopy(self.working_data)
             self.window().write_scans()
@@ -318,6 +315,10 @@ class Table(QtWidgets.QTableWidget):
     @QtCore.pyqtSlot()
     def try_save_changes(self):
         '''Show confirmation popup before saving changes'''
+        # disable scan listen if on
+        if self.window().hearing_scans:
+            self.window().disable_scan_listen()
+
         ConfirmWindow("Would you like to save any changes?", 
               "Confirm Save", 
               True,
@@ -327,6 +328,10 @@ class Table(QtWidgets.QTableWidget):
     @QtCore.pyqtSlot()
     def reset_table(self):
         '''Resets the table to original values'''
+        # disable scan listen if on
+        if self.window().hearing_scans:
+            self.window().disable_scan_listen()
+
         ConfirmWindow("Do you want to reset all changes to last save?", 
                 "Confirm Reset",
                 True, 
@@ -357,6 +362,10 @@ class Table(QtWidgets.QTableWidget):
             # TODO show ok menu notifying to edit a row first
             pass
         
+        # disable scan listen if on
+        if self.window().hearing_scans:
+            self.window().disable_scan_listen()
+            
         ConfirmWindow("Would you like to delete the last edited row?\nSerial Number: " + self.last_edited_Row_Serial, 
               "Confirm Delete Row", 
               True,

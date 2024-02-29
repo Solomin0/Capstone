@@ -322,6 +322,10 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def sync_db_btn_clicked(self):
         '''Register scan button clicked signal'''
+        # disable scan listen if on
+        if self.window().hearing_scans:
+            self.window().disable_scan_listen()
+            
         # if application is already connected to the database
         if self.__db_handle != None and self.__db_handle.is_connected():
             OkWindow(
