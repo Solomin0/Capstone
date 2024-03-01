@@ -1,6 +1,6 @@
 from mysql import connector as sql_connector
 from PyQt6 import QtWidgets, QtCore
-from .uielements import InputWindow, ConfirmWindow, OkWindow, DBConnectWindow
+from .uielements import InputWindow, ConfirmWindow, OkWindow, DBConnectWindow, OptionWindow
 from .MainAppUI import Ui_MainWindow
 from os import mkdir
 from os.path import isfile, isdir
@@ -12,6 +12,7 @@ class MainWindow(QtWidgets.QMainWindow):
     '''Main window running ui'''
      # fields
     scans = {} # dict of dicts where asset_tag_number is key
+    scan_entry_key = 'asset_tag_number'
     hearing_scans = False # whether app is listening for scans
     file_path = "scans//scans.txt"
     file_heading = '# Test file generated\n# test comment\n#############################\n'
@@ -56,11 +57,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         '''Main Window Initialization'''
         super().__init__(*args, **kwargs)
-        
+
         self.set_status("Loading") # set initial status
 
         self.ui = Ui_MainWindow() # load passed ui
         self.ui.setupUi(self) # populate window with ui
+
+        self.setWindowTitle(self.__app_title)
 
         # get scans from local storage
         self.read_scans()
@@ -71,19 +74,21 @@ class MainWindow(QtWidgets.QMainWindow):
             self.read_scans()
 
         self.set_status("Running") # application is now running
+
+        self.ui.vs_scans_table.populate(True) # populate scans table on new screen
         
     def try_populate_scan_file(self):
         '''Populate scans file with default values'''
         new_scan = {
-            "asset_tag_number": '12345',
+            self.scan_entry_key: '12345',
             "description": "laptop"
         }
         new_scan1 = {
-            'asset_tag_number': '1224',
+            self.scan_entry_key: '1224',
             'short_desc': 'Desktop'
         }
-        self.scans[new_scan['asset_tag_number']] = new_scan
-        self.scans[new_scan1['asset_tag_number']] = new_scan1
+        self.scans[new_scan[self.scan_entry_key]] = new_scan
+        self.scans[new_scan1[self.scan_entry_key]] = new_scan1
 
         # try default values to scans file
         self.write_scans()
@@ -156,35 +161,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 # iterate thru scan dicts
                 for scan_dict in scans:
                     # add scan record to runtime dict with asset tag number (unique) as key
-                    self.scans[scan_dict['asset_tag_number']] = scan_dict  
+                    self.scans[scan_dict[self.scan_entry_key]] = scan_dict  
 
     def read_scans(self):
         '''Read scans from file to runtime scans dict'''
         self.__read_scans_from(self.file_path)
-
-    @QtCore.pyqtSlot(int)
-    def goto_screen(self, value: int):
-        '''Navigate to main menu'''
-        # TODO clear all values on current screen
-        if self.ui.main_screen_stack.currentIndex == value: return
-
-        # grab app title
-        new_title = self.__app_title
-
-        if value == 0:
-            # move to main menu   
-            new_title += ' - Main Menu'
-        elif value == 1:
-            # new scan
-            new_title += ' - New Scan'
-        elif value == 2:
-            # view scans
-            new_title += ' - View Scans'
-            self.ui.vs_scans_table.populate(True) # populate scans table on new screen
-
-        self.setWindowTitle(new_title) # set new window title
-        # enable to corresponding screen
-        self.ui.main_screen_stack.setCurrentIndex(value)
 
     @QtCore.pyqtSlot()
     def try_backup_scans(self):
@@ -356,14 +337,17 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.set_sub_status("Connected To Database")
                     self.ui.statusbar.force_refresh()
                     
+                    options = {
+                        "Push data": lambda: self.__sync_with_db(True),
+                        "Pull data": lambda: self.__sync_with_db(False)
+                    }
+
                     # successfully connected to target database, can now sync
-                    ConfirmWindow("Connection Successful\nContinue with DB Sync?", 
-                                  "Start Database Sync?", 
+                    OptionWindow("Connection Successful\nChoose Database Sync Type:", 
+                                  "Choose sync type", 
                                   True,
-                                  self.__sync_with_db,
-                                  self.__disconnect_from_db()
+                                  options
                                   )
-                
                 else: # validation success, connection failed
                     self.set_sub_status("Connection Failed")
                     self.ui.statusbar.force_refresh()
@@ -380,7 +364,7 @@ class MainWindow(QtWidgets.QMainWindow):
             login_screen.accepted.connect(on_connect)
             login_screen.exec()
 
-    def __sync_with_db(self):
+    def __sync_with_db(self, push: bool):
         '''
         Handle pushing updated versions of items onto DB.
         Prompts user to select from duplicates. 
@@ -396,38 +380,56 @@ class MainWindow(QtWidgets.QMainWindow):
         else: # if connected to a db
             # TODO check if there is an ITEM table in this 
             # get db handle's cursor and reset it
-            cursor = self.__db_handle.cursor()
+            cursor = self.__db_handle.cursor(dictionary=True)
             cursor.reset()
             # query db ITEM table contents
             cursor.execute('SELECT * FROM ITEM')
             # cache raw results
             db_data_raw = cursor.fetchall()
             # translate SQL to list of dicts for app use
-            pull_working_data = self.__parse_db_to_json(db_data_raw)
-            # iterate through app-side item data
-            for asset_tag_no in self.scans:
-                # if db has item entry with same asset tag number
-                if asset_tag_no in pull_working_data.keys():
-                    if self.__auto_push_scans:
-                        # TODO replace entry in pull working data with app scans entry
-                        pass
-                    else: 
-                        # TODO show user comparison window
-                        pass
-                else: # if db does not already have item in it
-                    # copy item entry into working data
-                    pull_working_data[asset_tag_no] = deepcopy(self.scans[asset_tag_no])
+            pull_working_data = self.__parse_db_to_runtime(db_data_raw)
 
-            # copy pull working data back to app-side scans
+            if push: # if pushing to db
+                # iterate through app-side item data
+                for asset_tag_no in self.scans:
+                    # if db has item entry with same asset tag number
+                    if asset_tag_no in pull_working_data.keys():
+                        if self.__auto_push_scans:
+                            # TODO replace entry in pull working data with app scans entry
+                            pass
+                        else: 
+                            # TODO SHOW USER COMPARISON POPUP WINDOW
+                            pass
+                    else: # if db does not already have item in it
+                        # copy item entry into working data
+                        pull_working_data[asset_tag_no] = deepcopy(self.scans[asset_tag_no])
+
+                # copy pull working data back to app-side scans
+                self.scans = deepcopy(pull_working_data)
+
+                # translate dict of dicts working data back into SQL-readable data
+                push_working_data = self.__parse_runtime_to_db(pull_working_data)    
+                # iterate through push data and replace it in db ITEM table    
+                for item_data in push_working_data:
+                    # TODO sql -> replace db item data with corresponding asset tag number with push_working_data's item_data
+                    break
+
+                OkWindow("Local item data successfully pushed to database.",
+                         "DB update successful",
+                         True,
+                         None
+                         )
+
+            # finally, copy updated pull working data back to app-side scans
             self.scans = deepcopy(pull_working_data)
-                    
-            # translate dict of dicts working data back into SQL-readable data
-            push_working_data = self.__parse_json_to_db(pull_working_data)    
-
-            # iterate through push data and replace it in db ITEM table    
-            for item_data in push_working_data:
-                # TODO sql -> replace item data with corresponding asset tag number with item_data
-                break
+            OkWindow(
+                "Local item info successfully updated from database.",
+                "Local item info updated",
+                True,
+                None
+            )
+            # close connection to db
+            self.__disconnect_from_db()
 
     def __try_connect_to_db(self, host: str, port :str, db_name: str, username: str, password: str) -> bool:
         '''Establish connection to DB and return connection handle'''
@@ -453,21 +455,53 @@ class MainWindow(QtWidgets.QMainWindow):
             self.__db_handle.disconnect()
             self.__db_handle = None
             OkWindow("Database successfully disconnected.",
-                     "Database Disconnected sucessfully",
+                     "Database disconnected sucessfully",
                      True,
                      None
                      )
     
-    def __parse_db_to_json(self) -> list[dict]:
-        '''Translate db data to locally stored JSON data'''
+    def __parse_db_to_runtime(self, db_data: list[tuple]) -> dict[dict]:
+        '''Translate db data to locally stored runtime data'''
         if not self.db_connected: 
             OkWindow("Not connected to any database!",
                      "No Database Connection Detected",
                      True,
                      None)
         else: # if connected to the db
-            pass
+            runtime = dict()
+            # get first column name from db data for use in populating dict of dicts
+            target_key = db_data(0).keys()[0]
+            for entry in db_data:
+                runtime[target_key] = entry
 
-    def __parse_json_to_db(self) -> list[list]:
-        '''Translate local JSON data to db-compliant data'''
+            return runtime
+
+    def __parse_runtime_to_db(self, json_dict: dict[dict]) -> list[tuple]:
+        '''Translate local runtime data to db-compliant data'''
         pass
+
+
+    '''
+    @QtCore.pyqtSlot(int)
+    def goto_screen(self, value: int):
+        # TODO clear all values on current screen
+        if self.ui.main_screen_stack.currentIndex == value: return
+
+        # grab app title
+        new_title = self.__app_title
+
+        if value == 0:
+            # move to main menu   
+            new_title += ' - Main Menu'
+        elif value == 1:
+            # new scan
+            new_title += ' - New Scan'
+        elif value == 2:
+            # view scans
+            new_title += ' - View Scans'
+            self.ui.vs_scans_table.populate(True) # populate scans table on new screen
+
+        self.setWindowTitle(new_title) # set new window title
+        # enable to corresponding screen
+        self.ui.main_screen_stack.setCurrentIndex(value)
+    '''

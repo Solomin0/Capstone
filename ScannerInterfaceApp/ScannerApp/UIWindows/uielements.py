@@ -4,6 +4,7 @@ from .ConfirmUI import Ui_DialogConfirm
 from .DBSyncLoginUI import Ui_DBSyncLogin
 from .OkUI import Ui_DialogOk
 from .BackupInputUI import Ui_BackupFileInput
+from.OptionsUI import Ui_DialogOptions
 from copy import deepcopy
 
 
@@ -83,6 +84,26 @@ class DBConnectWindow(Popup):
     '''Dialog box for establishing connection to database'''
     def __init__(self, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
         super().__init__(Ui_DBSyncLogin, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
+
+class OptionWindow(Popup):
+    '''
+    Dialog box containing n option buttons to choose from.
+    Accepts a dictionary of string, callback which connects to auto-populated buttons in the window.
+    '''
+    def __init__(self, label_text: str, window_text: str, set_modal: bool, callbacks: dict, auto_exec: bool = True, *args, **kwargs):
+        if len(callbacks) == 0:
+            self.close()
+        else:
+            super().__init__(Ui_DialogOptions, label_text, window_text, set_modal, None, None, auto_exec, *args, **kwargs)
+            self.ui.option_btn.hide() # hide the initial button
+            # populate option buttons and connect them with passed slots
+            for button_text, callback in callbacks:    
+                option_btn = QtWidgets.QPushButton(parent=self.ui.button_box)
+                option_btn.setObjectName(button_text)
+                option_btn.setText(button_text)
+                option_btn.clicked.connect(callback)
+                self.ui.verticalLayout.addWidget(option_btn)
+            QtWidgets.QApplication.processEvents()
 ############ END CUSTOM POPUPS
 
      
@@ -96,7 +117,7 @@ class Table(QtWidgets.QTableWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.working_data = {} # init dict for holding data containing changes
-        self.last_edited_Row_Serial = None # init last edited row var
+        self.last_edited_Row_Key = None # init last edited row var
 
     def populate(self, reset: bool = False):
         ''' Populates table with values from passed list of dicts'''
@@ -199,13 +220,13 @@ class Table(QtWidgets.QTableWidget):
 
         # if adding new row
         if row > len(scans_vals) - 1:
-            new_serial_no = "0" + scans_vals[-1]['serial_number']
+            new_entry_key = "0" + scans_vals[-1][self.window().scan_entry_key]
             # if not adding new row by editing serial_no
             if col != 0 and (self.item(row, col -1) == None or self.item(row, col-1).text() == (None or "")):
                 # clear current cell value
                 self.item(row, col).setText('')
                 # add placeholder serial number to row
-                self.setItem(row, 0, QtWidgets.QTableWidgetItem(new_serial_no))
+                self.setItem(row, 0, QtWidgets.QTableWidgetItem(new_entry_key))
                 # register table update
                 self.update_scans(row, 0)
                 return
@@ -213,7 +234,7 @@ class Table(QtWidgets.QTableWidget):
                 # if clearing serial number to blank
                 if new_value == "" or new_value == None:
                     # set serial number of default value
-                    self.item(row, col).setText(new_serial_no)
+                    self.item(row, col).setText(new_entry_key)
                     # register table update
                     self.update_scans(row, col)
                     return
@@ -229,14 +250,14 @@ class Table(QtWidgets.QTableWidget):
                 
                 if found_duplicate:
                     # set serial number of default value
-                    new_value = new_serial_no
+                    new_value = new_entry_key
                     self.working_data[new_value] = scans_vals[-1].copy()
-                    self.working_data[new_value]['serial_number'] = new_value
+                    self.working_data[new_value][self.window().scan_entry_key] = new_value
                     self.item(row, col).setText(new_value)
                     # notify user
                     OkWindow(
-                        "Cannot enter duplicate serial number.",
-                        "Duplicate serial number detected",
+                        "Cannot enter duplicate entry key.",
+                        "Duplicate entry key detected",
                         True,
                         None
                     )
@@ -270,7 +291,7 @@ class Table(QtWidgets.QTableWidget):
                 targ_col = test_col_name
         else: # if target column is in scan entry
             targ_col = targ_row_keys[col]
-        targ_key = targ_row['serial_number']
+        targ_key = targ_row[self.window().scan_entry_key]
         
         last_edited = dict()
 
@@ -290,7 +311,7 @@ class Table(QtWidgets.QTableWidget):
         last_edited[str(targ_col)] = new_value
 
         # cache last edited row's serial number
-        self.last_edited_Row_Serial = list(last_edited.items())[0][1]
+        self.last_edited_Row_Key = list(last_edited.items())[0][1]
 
         print('New scans: ', self.working_data)
 
@@ -322,7 +343,7 @@ class Table(QtWidgets.QTableWidget):
         ConfirmWindow("Would you like to save any changes?", 
               "Confirm Save", 
               True,
-              on_accept=lambda: self.__save_changes(),
+              on_accept=self.__save_changes,
               on_reject=None)
         
     @QtCore.pyqtSlot()
@@ -342,8 +363,8 @@ class Table(QtWidgets.QTableWidget):
     @QtCore.pyqtSlot()
     def add_row(self):
         '''Add an empty scan table row'''
-        previous_row_serial = self.item(self.rowCount() - 1, 0)
-        if  previous_row_serial != None and previous_row_serial.text() != ("" or None):
+        previous_row_key = self.item(self.rowCount() - 1, 0)
+        if  previous_row_key != None and previous_row_key.text() != ("" or None):
             self.insertRow(self.rowCount())
             QtWidgets.QApplication.processEvents()
 
@@ -352,13 +373,13 @@ class Table(QtWidgets.QTableWidget):
         '''Deletes the last edited row from table'''
         #target = self.findItems(self.last_edited_Row_Serial)
         #print("Delete target: " + target)
-        del self.working_data[self.last_edited_Row_Serial]
+        del self.working_data[self.last_edited_Row_Key]
         self.populate()
 
     @QtCore.pyqtSlot()
     def try_del_last_edited_row(self):
         '''Show confirmation  pop-up for deleted last edited row'''
-        if self.last_edited_Row_Serial == None:
+        if self.last_edited_Row_Key == None:
             # TODO show ok menu notifying to edit a row first
             pass
         
@@ -366,7 +387,7 @@ class Table(QtWidgets.QTableWidget):
         if self.window().hearing_scans:
             self.window().disable_scan_listen()
             
-        ConfirmWindow("Would you like to delete the last edited row?\nSerial Number: " + self.last_edited_Row_Serial, 
+        ConfirmWindow("Would you like to delete the last edited row?\nEntry Key: " + self.last_edited_Row_Key, 
               "Confirm Delete Row", 
               True,
               on_accept=lambda: self.__del_last_edited_row(),
@@ -376,7 +397,7 @@ class Table(QtWidgets.QTableWidget):
     def __try_find_col_in_scans(self, index: int) -> str:
         '''
         Try to find a scan column name in table data at passed index.
-        Basically, find row serialnumber by row position in table.
+        Basically, find row entry key by row position in table.
         '''
         for item in self.working_data:
             # try to find corresponding column in list
