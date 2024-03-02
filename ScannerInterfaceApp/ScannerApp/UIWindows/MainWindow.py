@@ -470,16 +470,23 @@ class MainWindow(QtWidgets.QMainWindow):
                      None)
         else: # if connected to the db
             runtime = dict()
-            # get first column name from db data for use in populating dict of dicts
-            target_key = db_data(0).keys()[0]
+            # get first column name from first item in db data for use in populating dict of dicts
+            # set global runtime reference for entry keys
+            self.scan_entry_key = list(db_data[0].keys())[0]
+
+            # populate runtime dict of dicts with entries
             for entry in db_data:
-                runtime[target_key] = entry
+                runtime[self.scan_entry_key] = entry
 
             return runtime
 
-    def __parse_runtime_to_db(self, json_dict: dict[dict]) -> list[tuple]:
+    def __parse_runtime_to_db(self, runtime_dict: dict[dict]) -> list[tuple]:
         '''Translate local runtime data to db-compliant data'''
-        pass
+        if runtime_dict == None or len(runtime_dict == 0):
+            return
+        
+        for key in runtime_dict:
+            runtime_dict
 
 
     '''

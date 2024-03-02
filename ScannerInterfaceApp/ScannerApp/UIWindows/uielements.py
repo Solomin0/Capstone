@@ -84,6 +84,7 @@ class DBConnectWindow(Popup):
     '''Dialog box for establishing connection to database'''
     def __init__(self, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
         super().__init__(Ui_DBSyncLogin, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
+        self.ui.db_host_nameip_input.setFocus()
 
 class OptionWindow(Popup):
     '''
@@ -94,16 +95,22 @@ class OptionWindow(Popup):
         if len(callbacks) == 0:
             self.close()
         else:
-            super().__init__(Ui_DialogOptions, label_text, window_text, set_modal, None, None, auto_exec, *args, **kwargs)
+            super().__init__(Ui_DialogOptions, label_text, window_text, set_modal, None, None, False, *args, **kwargs)
             self.ui.option_btn.hide() # hide the initial button
+            self.ui.verticalLayout.removeWidget(self.ui.back_btn)
             # populate option buttons and connect them with passed slots
-            for button_text, callback in callbacks:    
+            for button_text, callback in callbacks.items():    
                 option_btn = QtWidgets.QPushButton(parent=self.ui.button_box)
                 option_btn.setObjectName(button_text)
                 option_btn.setText(button_text)
                 option_btn.clicked.connect(callback)
                 self.ui.verticalLayout.addWidget(option_btn)
+            self.ui.verticalLayout.addWidget(self.ui.back_btn)
             QtWidgets.QApplication.processEvents()
+
+            if auto_exec:
+                self.exec()
+
 ############ END CUSTOM POPUPS
 
      
