@@ -276,10 +276,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # select current row to editing
             self.ui.vs_scans_table.setCurrentCell(targ_row, 0)
-
+            
             # wait for enough text to be entered into asset_tag_number cell before refreshing scan listen 
             new_cell = self.ui.vs_scans_table.item(targ_row, 0)
-            while new_cell == None or len(new_cell.text()) < 1:
+
+            while self.ui.vs_scans_table.currentItem() == new_cell and (new_cell == None or len(new_cell.text()) < 1):
                 new_cell = self.ui.vs_scans_table.item(targ_row, 0)
                 QtWidgets.QApplication.processEvents()
             QtCore.QTimer.singleShot(int(self.__scan_polling_interval*1000), self.__do_register_scans)

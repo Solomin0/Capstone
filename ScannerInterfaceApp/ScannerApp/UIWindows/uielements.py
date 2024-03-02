@@ -191,7 +191,9 @@ class Table(QtWidgets.QTableWidget):
         Update working data with new cell value.
         This is called when something is manually typed into cell.
         '''
-
+        if self.item(row, col) == None: 
+            return
+        
         scans_vals = list(self.working_data.values())
         # find cell with the typed value in it
         new_value = self.item(row, col).text()
@@ -249,19 +251,32 @@ class Table(QtWidgets.QTableWidget):
                         break
                 
                 if found_duplicate:
+                    # init notification window
+                    dup_notif = OkWindow(
+                        "Cannot enter duplicate entry key.",
+                        "Duplicate entry key detected: " + new_value,
+                        True,
+                        None,
+                        False
+                    )
+
                     # set serial number of default value
+                    '''
                     new_value = new_entry_key
                     self.working_data[new_value] = scans_vals[-1].copy()
                     self.working_data[new_value][self.window().scan_entry_key] = new_value
                     self.item(row, col).setText(new_value)
+                    '''
+
+                    # clear out newly added row
+                    for column in range(self.columnCount()):
+                        self.setItem(row, column, None)
+
                     # notify user
-                    OkWindow(
-                        "Cannot enter duplicate entry key.",
-                        "Duplicate entry key detected",
-                        True,
-                        None
-                    )
-                
+                    dup_notif.exec()
+
+                    return 
+
                 # copy previous row's content to new row
                 if new_value not in self.working_data.keys():
                     self.working_data[new_value] = scans_vals[-1].copy()
