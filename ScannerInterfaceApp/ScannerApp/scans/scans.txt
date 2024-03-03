@@ -14026,5 +14026,35 @@
   "SERIAL_NUMBER": "7HB951644",
   "UTILIZATION_CODE": "A",
   "CONDITION_CODE": "AU"
+ },
+ {
+  "ASSET_TAG_NUMBER": "test",
+  "DESCRIPTION": "Undefined",
+  "ADDITIONAL_DESCRIPTION": "Undefined",
+  "BUILDING_NUMBER": "Undefined",
+  "SITE_USED": "Undefined",
+  "ASSIGNED_TO": "Undefined",
+  "ROOM_NUMBER": "Undefined",
+  "MANUEFACTURER": "Undefined",
+  "MODEL_NUMBER": "Undefined",
+  "PART_NUMBER": "Undefined",
+  "SERIAL_NUMBER": "Undefined",
+  "UTILIZATION_CODE": "A",
+  "CONDITION_CODE": "AU"
+ },
+ {
+  "ASSET_TAG_NUMBER": "t",
+  "DESCRIPTION": "Undefined",
+  "ADDITIONAL_DESCRIPTION": "Undefined",
+  "BUILDING_NUMBER": "Undefined",
+  "SITE_USED": "Undefined",
+  "ASSIGNED_TO": "Undefined",
+  "ROOM_NUMBER": "Undefined",
+  "MANUEFACTURER": "Undefined",
+  "MODEL_NUMBER": "Undefined",
+  "PART_NUMBER": "Undefined",
+  "SERIAL_NUMBER": "Undefined",
+  "UTILIZATION_CODE": "A",
+  "CONDITION_CODE": "AU"
  }
 ]

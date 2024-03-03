@@ -143,6 +143,10 @@ class Ui_MainWindow(object):
         self.auto_push_scans = QtGui.QAction(parent=MainWindow)
         self.auto_push_scans.setCheckable(True)
         self.auto_push_scans.setObjectName("auto_push_scans")
+        self.save_changes = QtGui.QAction(parent=MainWindow)
+        self.save_changes.setObjectName("save_changes")
+        self.reset_Changes = QtGui.QAction(parent=MainWindow)
+        self.reset_Changes.setObjectName("reset_Changes")
         self.menuDatabase_Sync.addAction(self.auto_push_scans)
         self.menuSettings.addAction(self.menuDatabase_Sync.menuAction())
         self.menuBar.addAction(self.menuSettings.menuAction())
@@ -189,4 +193,6 @@ class Ui_MainWindow(object):
         self.menuDatabase_Sync.setTitle(_translate("MainWindow", "Database Sync"))
         self.actionBackup_Scans.setText(_translate("MainWindow", "Backup Scans"))
         self.auto_push_scans.setText(_translate("MainWindow", "Auto-Push Changes to Database"))
+        self.save_changes.setText(_translate("MainWindow", "Save"))
+        self.reset_Changes.setText(_translate("MainWindow", "Reset Changes"))
 from .uielements import PushButton, StackedWidget, StatusBar, Table

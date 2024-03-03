@@ -48,13 +48,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="back_btn">
-        <property name="text">
-         <string>Back</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -75,22 +68,6 @@
     <hint type="destinationlabel">
      <x>241</x>
      <y>2</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>back_btn</sender>
-   <signal>clicked()</signal>
-   <receiver>DialogOptions</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>164</x>
-     <y>251</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>298</x>
-     <y>7</y>
     </hint>
    </hints>
   </connection>

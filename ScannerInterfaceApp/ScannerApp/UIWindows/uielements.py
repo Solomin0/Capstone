@@ -98,7 +98,6 @@ class OptionWindow(Popup):
             super().__init__(Ui_DialogOptions, label_text, window_text, set_modal, None, None, False, *args, **kwargs)
             self.ui.option_btn.hide() # hide the initial button
             self.ui.option_btn.setFocus()
-            self.ui.verticalLayout.removeWidget(self.ui.back_btn)
             # populate option buttons and connect them with passed slots
             for button_text, callback in callbacks.items():    
                 option_btn = QtWidgets.QPushButton(parent=self.ui.button_box)
@@ -107,7 +106,6 @@ class OptionWindow(Popup):
                 option_btn.clicked.connect(callback)
                 option_btn.clicked.connect(self.accept)
                 self.ui.verticalLayout.addWidget(option_btn)
-            self.ui.verticalLayout.addWidget(self.ui.back_btn)
             QtWidgets.QApplication.processEvents()
 
             if auto_exec:

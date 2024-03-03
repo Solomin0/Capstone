@@ -32,14 +32,10 @@ class Ui_DialogOptions(object):
         self.option_btn = QtWidgets.QPushButton(parent=self.button_box)
         self.option_btn.setObjectName("option_btn")
         self.verticalLayout.addWidget(self.option_btn)
-        self.back_btn = QtWidgets.QPushButton(parent=self.button_box)
-        self.back_btn.setObjectName("back_btn")
-        self.verticalLayout.addWidget(self.back_btn)
         self.gridLayout.addWidget(self.button_box, 1, 0, 1, 1)
 
         self.retranslateUi(DialogOptions)
         self.option_btn.clicked.connect(DialogOptions.accept) # type: ignore
-        self.back_btn.clicked.connect(DialogOptions.accept) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(DialogOptions)
 
     def retranslateUi(self, DialogOptions):
@@ -47,4 +43,3 @@ class Ui_DialogOptions(object):
         DialogOptions.setWindowTitle(_translate("DialogOptions", "Dialog"))
         self.label.setText(_translate("DialogOptions", "TextLabel"))
         self.option_btn.setText(_translate("DialogOptions", "Option 1"))
-        self.back_btn.setText(_translate("DialogOptions", "Back"))

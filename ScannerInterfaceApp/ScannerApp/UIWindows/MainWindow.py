@@ -392,11 +392,14 @@ class MainWindow(QtWidgets.QMainWindow):
                     }
 
                     # successfully connected to target database, can now sync
-                    OptionWindow("Connection Successful\nChoose Database Sync Type:", 
+                    choose_push_pull = OptionWindow("Connection Successful\nChoose Database Sync Type:", 
                                   "Choose sync type", 
                                   True,
-                                  options
+                                  options,
+                                  False
                                   )
+                    choose_push_pull.rejected.connect(self.__disconnect_from_db)
+                    choose_push_pull.exec()
                 else: # validation success, connection failed
                     self.set_sub_status("Connection Failed")
                     self.ui.statusbar.force_refresh()
@@ -444,11 +447,11 @@ class MainWindow(QtWidgets.QMainWindow):
             
             get_text = targ_table_input.ui.input.text
             
-            def targ_table():
+            def get_targ_table():
                 nonlocal targ_table
                 targ_table = get_text()
 
-            targ_table_input.accepted.connect(targ_table)
+            targ_table_input.accepted.connect(get_targ_table)
             targ_table_input.exec()
 
             self.set_sub_status("Pushing to database...")
@@ -477,6 +480,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # cache raw results
             db_data_raw = cursor.fetchall()
+
             # translate SQL to list of dicts for app use
             pull_working_data = self.__parse_db_to_runtime(db_data_raw)
 
@@ -501,13 +505,13 @@ class MainWindow(QtWidgets.QMainWindow):
                         else: 
                             # TODO SHOW USER COMPARISON POPUP WINDOW
                             pass
-                    # if db does not already have item in it
-                    # AND is a valid entry
+                    # if db does not already have item in it AND is a valid entry
                     # TODO check if all NOT NULL fields have values in them
                     elif test_keys == None or len(self.scans[asset_tag_no].keys()) >= len(test_keys) - 2:
                         # copy item entry into working data
                         pull_working_data[asset_tag_no] = deepcopy(self.scans[asset_tag_no])
-                    else: # if an invalid entry was found
+                    # if an invalid entry was found
+                    else: 
                         invalid_entries.append(asset_tag_no)
                     
                 # notify user of any invalid entries
