@@ -10,21 +10,26 @@ from copy import deepcopy
 
 class MainWindow(QtWidgets.QMainWindow):
     '''Main window running ui'''
-     # fields
+     # public fields
     scans = {} # dict of dicts where asset_tag_number is key
-    scan_entry_key = 'asset_tag_number'
+    scan_entry_primary_key = 'asset_tag_number' # global reference for 
     hearing_scans = False # whether app is listening for scans
     file_path = "scans//scans.txt"
     file_heading = '# Test file generated\n# test comment\n#############################\n'
-
+    # end public fields
+    
+    # application state fields
     __app_title = 'Asset Scanner Application'
     __version_no = 'v0.0.1'
     __status = "Unitialized"
     __sub_status = ""
     __db_handle = None
-    __scan_polling_interval = 0.05
+    # end application state fields
+
+    # settings fields
+    __scan_polling_interval = 0.1
     __auto_push_scans = False # whether app-side item data is pushed to db without a user comparison
-    # end fields
+    # end settings fields
 
     # properties
     @property
@@ -48,21 +53,32 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_status(cls, new_status: str):
         '''Sets the application status'''
         cls.status = new_status
-    
+
     @classmethod
     def set_sub_status(cls, new_sub_status: str):
         '''Sets application sub-status'''
         cls.sub_status = new_sub_status
+        QtWidgets.QApplication.processEvents()
 
+    @classmethod
+    def reset_sub_status(cls):
+        '''Resets sub status'''
+        cls.set_sub_status('')
+
+    @classmethod
+    def show_loading(cls):
+        '''Show loading status'''
+        cls.set_sub_status("Loading...")
+
+  
     def __init__(self, *args, **kwargs):
         '''Main Window Initialization'''
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs) # init QTMainWindow
 
-        self.set_status("Loading") # set initial status
+        self.show_loading() # set initial status
 
         self.ui = Ui_MainWindow() # load passed ui
         self.ui.setupUi(self) # populate window with ui
-
         self.setWindowTitle(self.__app_title)
 
         # get scans from local storage
@@ -70,42 +86,49 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # if file was empty or no scans returned
         if self.scans == None or len(self.scans) == 0:
-            self.try_populate_scan_file()
+            self.try_populate_scan_file() # populate and write default scans file
             self.read_scans()
 
         self.set_status("Running") # application is now running
 
-        self.ui.vs_scans_table.populate(True) # populate scans table on new screen
+        self.ui.vs_scans_table.populate(True) # populate scans table
         
+
     def try_populate_scan_file(self):
         '''Populate scans file with default values'''
         new_scan = {
-            self.scan_entry_key: '12345',
+            self.scan_entry_primary_key: '12345',
             "description": "laptop"
         }
         new_scan1 = {
-            self.scan_entry_key: '1224',
+            self.scan_entry_primary_key: '1224',
             'short_desc': 'Desktop'
         }
-        self.scans[new_scan[self.scan_entry_key]] = new_scan
-        self.scans[new_scan1[self.scan_entry_key]] = new_scan1
+        # add new entries to runtime dict of dicts
+        self.scans[new_scan[self.scan_entry_primary_key]] = new_scan
+        self.scans[new_scan1[self.scan_entry_primary_key]] = new_scan1
 
         # try default values to scans file
         self.write_scans()
 
+
     def __write_scans_to(self, file_path: str):
         '''Write scans to target file at passed path'''
+        
+        self.set_sub_status("Writing to file...")
+
         # make scans folder if it doesn't exist
         dir_name = file_path.split('//')[0]
         if (not isdir(dir_name)):
             mkdir(dir_name)
 
+        #  open scans file
         with open(file_path, 'w+') as f:
             # init payload list
             json = []
-
-            if self.scans and len(self.scans) > 0: # if scans dict is not None or empty
-                # iterate thru scans and add new line between each
+            # if scans dict is not None or empty
+            if self.scans and len(self.scans) > 0: 
+                # iterate thru scans and add new line between each scan entry
                 for scan in self.scans.values():
                     # remove any blank values
                     for scan_key in scan:
@@ -123,9 +146,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 # write empty file with file heading
                 f.writelines(self.file_heading)
 
+        self.reset_sub_status()
+
+
     def write_scans(self) -> None:
         '''Write runtime scans dict to file'''
         self.__write_scans_to(self.file_path)
+
 
     def __read_scans_from(self, file_path: str): 
         '''Read scans from file to runtime scans dict'''
@@ -138,6 +165,8 @@ class MainWindow(QtWidgets.QMainWindow):
             if lines == "" or lines == None: # if file is empty
                 # TODO handle empty file 
                 return
+            
+            self.set_sub_status("Reading scan file contents...")
 
             ## get only scans part of file
             # split out file by line
@@ -152,20 +181,27 @@ class MainWindow(QtWidgets.QMainWindow):
                     valid_lines.append(line)
             
             # join file contents back together
-            scans = '\n'.join(valid_lines)
+            loaded_scans = '\n'.join(valid_lines)
 
-            if scans: # if file is not empty
+            if loaded_scans: # if file is not empty
                 # convert to list of dicts from JSON
-                scans = loads(scans)
+                loaded_scans = loads(loaded_scans)
+
+                # set global reference primary key for scans dict - first scan entry's first column name
+                self.scan_entry_primary_key = list(loaded_scans[0].keys())[0]
 
                 # iterate thru scan dicts
-                for scan_dict in scans:
+                for scan_dict in loaded_scans:
                     # add scan record to runtime dict with asset tag number (unique) as key
-                    self.scans[scan_dict[self.scan_entry_key]] = scan_dict  
+                    self.scans[scan_dict[self.scan_entry_primary_key]] = scan_dict 
+
+            self.reset_sub_status() 
+
 
     def read_scans(self):
         '''Read scans from file to runtime scans dict'''
         self.__read_scans_from(self.file_path)
+
 
     @QtCore.pyqtSlot()
     def try_backup_scans(self):
@@ -187,13 +223,14 @@ class MainWindow(QtWidgets.QMainWindow):
         # to get around not referencing inputWin var within its own obj definition
         getText = inputWin.ui.input.text
         callback = lambda: self.__backup_scans(getText())
-        inputWin.accepted.connect(lambda: callback())
+        inputWin.accepted.connect(callback)
         inputWin.exec()
+
 
     def __backup_scans(self, backup_file_name: str):
         '''Serialize current scans to backup local timestampted file'''
         if (backup_file_name is None): 
-            print("No file anem given!")
+            print("No file name given!")
             return
         
         # add json extension to file name if not there already
@@ -201,6 +238,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if ('.json' not in str(backup_file_name)):
             backup_file_name = 'scans//' + str(backup_file_name) + '.json'
         
+        self.set_sub_status("Backing up scans...")
+
         # cache success notification 
         success = OkWindow("Backup file successfully overwritten!",
                             "Backup Success",
@@ -229,6 +268,8 @@ class MainWindow(QtWidgets.QMainWindow):
             writeScans()
             success.ui.label.setText("Backup file successfully written!")
             showSuccess()
+        
+        self.reset_sub_status()
 
     @QtCore.pyqtSlot()
     def toggle_scan_listen(self):
@@ -261,7 +302,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.set_sub_status("Listening for scans...")
         else:
             self.ui.vs_new_scan_btn.setText("Scan")
-            self.set_sub_status("")
+            self.reset_sub_status()
 
     def __do_register_scans(self):
         '''Get scan data, convert it to a new row entry or update it if exists'''
@@ -339,8 +380,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.statusbar.force_refresh()
                     
                     options = {
-                        "Push data": lambda: self.__sync_with_db(True),
-                        "Pull data": lambda: self.__sync_with_db(False)
+                        "Push data to database": lambda: self.__sync_with_db(True),
+                        "Pull data from database": lambda: self.__sync_with_db(False)
                     }
 
                     # successfully connected to target database, can now sync
@@ -421,8 +462,9 @@ class MainWindow(QtWidgets.QMainWindow):
                          None
                          )
 
-            # finally, copy updated pull working data back to app-side scans
+            # finally, copy updated pull working data back to app-side scans and update table display
             self.scans = deepcopy(pull_working_data)
+            self.ui.vs_scans_table.populate(True)
             OkWindow(
                 "Local item info successfully updated from database.",
                 "Local item info updated",
@@ -436,6 +478,7 @@ class MainWindow(QtWidgets.QMainWindow):
         '''Establish connection to DB and return connection handle'''
         if port == None or port == "": # use default port if none specified
             port = 3306
+        self.set_sub_status("Connecting...")
         try:
             db_handle = sql_connector.connect(
                 host=host,
@@ -455,6 +498,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.__db_handle != None:
             self.__db_handle.disconnect()
             self.__db_handle = None
+            self.__update_scan_status()
             OkWindow("Database successfully disconnected.",
                      "Database disconnected sucessfully",
                      True,
@@ -472,17 +516,17 @@ class MainWindow(QtWidgets.QMainWindow):
             runtime = dict()
             # get first column name from first item in db data for use in populating dict of dicts
             # set global runtime reference for entry keys
-            self.scan_entry_key = list(db_data[0].keys())[0]
+            self.scan_entry_primary_key = list(db_data[0].keys())[0]
 
             # populate runtime dict of dicts with entries
             for entry in db_data:
-                runtime[self.scan_entry_key] = entry
+                runtime[entry[self.scan_entry_primary_key]] = entry
 
             return runtime
 
     def __parse_runtime_to_db(self, runtime_dict: dict[dict]) -> list[tuple]:
         '''Translate local runtime data to db-compliant data'''
-        if runtime_dict == None or len(runtime_dict == 0):
+        if runtime_dict == None or len(runtime_dict) == 0:
             return
         
         for key in runtime_dict:

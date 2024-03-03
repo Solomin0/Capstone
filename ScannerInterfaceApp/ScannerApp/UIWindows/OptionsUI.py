@@ -38,6 +38,8 @@ class Ui_DialogOptions(object):
         self.gridLayout.addWidget(self.button_box, 1, 0, 1, 1)
 
         self.retranslateUi(DialogOptions)
+        self.option_btn.clicked.connect(DialogOptions.accept) # type: ignore
+        self.back_btn.clicked.connect(DialogOptions.accept) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(DialogOptions)
 
     def retranslateUi(self, DialogOptions):

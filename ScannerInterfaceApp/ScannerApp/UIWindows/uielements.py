@@ -104,6 +104,7 @@ class OptionWindow(Popup):
                 option_btn.setObjectName(button_text)
                 option_btn.setText(button_text)
                 option_btn.clicked.connect(callback)
+                option_btn.clicked.connect(self.accept)
                 self.ui.verticalLayout.addWidget(option_btn)
             self.ui.verticalLayout.addWidget(self.ui.back_btn)
             QtWidgets.QApplication.processEvents()
@@ -157,6 +158,10 @@ class Table(QtWidgets.QTableWidget):
         self.clear() # clear table contents and headers
         self.setColumnCount(col_count) # set table column count to new column name
 
+        if row_count == 0:
+            # TODO indicate no rows present
+            return
+        
         # iterate thru all columns of first item
         for i in range(col_count):  
             # init header item
@@ -167,10 +172,6 @@ class Table(QtWidgets.QTableWidget):
             header.setText(max_keys[i])
             # place new table widget item on table header
             self.setHorizontalHeaderItem(i, header)
-
-        if row_count == 0:
-            # TODO indicate no rows present
-            return
 
         # set row size of table to number of items to display
         self.setRowCount(row_count)
@@ -229,7 +230,7 @@ class Table(QtWidgets.QTableWidget):
 
         # if adding new row
         if row > len(scans_vals) - 1:
-            new_entry_key = "0" + scans_vals[-1][self.window().scan_entry_key]
+            new_entry_key = "0" + scans_vals[-1][self.window().scan_entry_primary_key]
             # if not adding new row by editing serial_no
             if col != 0 and (self.item(row, col -1) == None or self.item(row, col-1).text() == (None or "")):
                 # clear current cell value
@@ -271,7 +272,7 @@ class Table(QtWidgets.QTableWidget):
                     '''
                     new_value = new_entry_key
                     self.working_data[new_value] = scans_vals[-1].copy()
-                    self.working_data[new_value][self.window().scan_entry_key] = new_value
+                    self.working_data[new_value][self.window().scan_entry_primary_key] = new_value
                     self.item(row, col).setText(new_value)
                     '''
 
@@ -286,7 +287,12 @@ class Table(QtWidgets.QTableWidget):
 
                 # copy previous row's content to new row
                 if new_value not in self.working_data.keys():
-                    self.working_data[new_value] = scans_vals[-1].copy()
+                    # self.working_data[new_value] = scans_vals[-1].copy()
+                    self.working_data[new_value] = {self.window().scan_entry_primary_key : new_value}
+                    # placeholder row of "undefined" values
+                    for column in range(1, self.columnCount()):
+                        self.setItem(row, column, QtWidgets.QTableWidgetItem("Undefined"))
+
                 row_columns = list(self.working_data[new_value].keys())
 
                 # show new row contents on target row cells
@@ -313,7 +319,7 @@ class Table(QtWidgets.QTableWidget):
                 targ_col = test_col_name
         else: # if target column is in scan entry
             targ_col = targ_row_keys[col]
-        targ_key = targ_row[self.window().scan_entry_key]
+        targ_key = targ_row[self.window().scan_entry_primary_key]
         
         last_edited = dict()
 
@@ -335,11 +341,12 @@ class Table(QtWidgets.QTableWidget):
         # cache last edited row's serial number
         self.last_edited_Row_Key = list(last_edited.items())[0][1]
 
-        print('New scans: ', self.working_data)
+        #print('New scans: ', self.working_data)
 
     def __save_changes(self):
         '''Save table changes to runtime scans dict'''
         if self.working_data != None:
+            self.window().show_loading()
             # check for any blank rows
             for key in self.working_data:
                 # if found blank row, delete it
@@ -348,6 +355,7 @@ class Table(QtWidgets.QTableWidget):
             # copy working data w changes over to runtime dict      
             self.window().scans = deepcopy(self.working_data)
             self.window().write_scans()
+            self.window().reset_sub_status()
             OkWindow("Table changes saved!",
                      "Changes Saved",
                      False,
