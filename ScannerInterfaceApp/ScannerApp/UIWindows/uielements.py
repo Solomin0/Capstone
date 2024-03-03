@@ -97,6 +97,7 @@ class OptionWindow(Popup):
         else:
             super().__init__(Ui_DialogOptions, label_text, window_text, set_modal, None, None, False, *args, **kwargs)
             self.ui.option_btn.hide() # hide the initial button
+            self.ui.option_btn.setFocus()
             self.ui.verticalLayout.removeWidget(self.ui.back_btn)
             # populate option buttons and connect them with passed slots
             for button_text, callback in callbacks.items():    
@@ -119,6 +120,12 @@ class StackedWidget(QtWidgets.QStackedWidget):
     '''Custom stacked widget'''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+class MenuBar(QtWidgets.QMenuBar):
+    '''Custom menu bar'''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ui.auto_push_scans.triggered.connect(self.set_auto_push)
 
 class Table(QtWidgets.QTableWidget):
     '''Custom table widget'''
@@ -405,6 +412,7 @@ class Table(QtWidgets.QTableWidget):
         #print("Delete target: " + target)
         del self.working_data[self.last_edited_Row_Key]
         self.populate()
+
 
     @QtCore.pyqtSlot()
     def try_del_last_edited_row(self):

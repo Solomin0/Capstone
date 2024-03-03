@@ -127,8 +127,25 @@ class Ui_MainWindow(object):
         self.statusbar.setEnabled(True)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.menuBar = QtWidgets.QMenuBar(parent=MainWindow)
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 655, 24))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.menuBar.setFont(font)
+        self.menuBar.setObjectName("menuBar")
+        self.menuSettings = QtWidgets.QMenu(parent=self.menuBar)
+        self.menuSettings.setObjectName("menuSettings")
+        self.menuDatabase_Sync = QtWidgets.QMenu(parent=self.menuSettings)
+        self.menuDatabase_Sync.setObjectName("menuDatabase_Sync")
+        MainWindow.setMenuBar(self.menuBar)
         self.actionBackup_Scans = QtGui.QAction(parent=MainWindow)
         self.actionBackup_Scans.setObjectName("actionBackup_Scans")
+        self.auto_push_scans = QtGui.QAction(parent=MainWindow)
+        self.auto_push_scans.setCheckable(True)
+        self.auto_push_scans.setObjectName("auto_push_scans")
+        self.menuDatabase_Sync.addAction(self.auto_push_scans)
+        self.menuSettings.addAction(self.menuDatabase_Sync.menuAction())
+        self.menuBar.addAction(self.menuSettings.menuAction())
 
         self.retranslateUi(MainWindow)
         self.main_screen_stack.setCurrentIndex(0)
@@ -142,6 +159,7 @@ class Ui_MainWindow(object):
         self.vs_backup_btn.clicked.connect(MainWindow.try_backup_scans) # type: ignore
         self.vs_add_row_btn.clicked.connect(MainWindow.disable_scan_listen) # type: ignore
         self.vs_sync_db_btn.clicked.connect(MainWindow.sync_db_btn_clicked) # type: ignore
+        self.auto_push_scans.triggered['bool'].connect(MainWindow.set_auto_push) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -167,5 +185,8 @@ class Ui_MainWindow(object):
         self.vs_reset_btn.setText(_translate("MainWindow", "Reset Changes"))
         self.vs_del_last_btn.setText(_translate("MainWindow", "Delete Last Edited"))
         self.vs_save_btn.setText(_translate("MainWindow", "Save"))
+        self.menuSettings.setTitle(_translate("MainWindow", "Settings"))
+        self.menuDatabase_Sync.setTitle(_translate("MainWindow", "Database Sync"))
         self.actionBackup_Scans.setText(_translate("MainWindow", "Backup Scans"))
+        self.auto_push_scans.setText(_translate("MainWindow", "Auto-Push"))
 from .uielements import PushButton, StackedWidget, StatusBar, Table

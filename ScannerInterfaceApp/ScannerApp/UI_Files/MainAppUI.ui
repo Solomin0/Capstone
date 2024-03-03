@@ -224,9 +224,45 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>655</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <widget class="QMenu" name="menuDatabase_Sync">
+     <property name="title">
+      <string>Database Sync</string>
+     </property>
+     <addaction name="auto_push_scans"/>
+    </widget>
+    <addaction name="menuDatabase_Sync"/>
+   </widget>
+   <addaction name="menuSettings"/>
+  </widget>
   <action name="actionBackup_Scans">
    <property name="text">
     <string>Backup Scans</string>
+   </property>
+  </action>
+  <action name="auto_push_scans">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto-Push</string>
    </property>
   </action>
  </widget>
@@ -352,8 +388,8 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>549</x>
-     <y>11</y>
+     <x>558</x>
+     <y>44</y>
     </hint>
     <hint type="destinationlabel">
      <x>380</x>
@@ -384,8 +420,8 @@
    <slot>try_backup_scans()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>89</x>
-     <y>20</y>
+     <x>99</x>
+     <y>54</y>
     </hint>
     <hint type="destinationlabel">
      <x>193</x>
@@ -400,8 +436,8 @@
    <slot>disable_scan_listen()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>510</x>
-     <y>32</y>
+     <x>554</x>
+     <y>66</y>
     </hint>
     <hint type="destinationlabel">
      <x>345</x>
@@ -416,12 +452,28 @@
    <slot>sync_db_btn_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>164</x>
-     <y>36</y>
+     <x>241</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>46</x>
      <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>auto_push_scans</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_auto_push(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>227</y>
     </hint>
    </hints>
   </connection>
@@ -431,5 +483,6 @@
   <slot>try_backup_scans()</slot>
   <slot>disable_scan_listen()</slot>
   <slot>sync_db_btn_clicked()</slot>
+  <slot>set_auto_push(bool)</slot>
  </slots>
 </ui>

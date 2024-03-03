@@ -43,61 +43,74 @@
    <property name="verticalSpacing">
     <number>0</number>
    </property>
-   <item row="4" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <property name="spacing">
-      <number>0</number>
+      <number>25</number>
      </property>
      <item>
-      <widget class="QLabel" name="label_db">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="text">
-        <string>Target Database Name:</string>
-       </property>
-       <property name="buddy">
-        <cstring>db_name_input</cstring>
-       </property>
-      </widget>
+       <item>
+        <widget class="QLabel" name="label_host">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Database Host Name / IP:</string>
+         </property>
+         <property name="buddy">
+          <cstring>db_host_nameip_input</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="db_host_nameip_input">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLineEdit" name="db_name_input">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>0</number>
        </property>
-       <property name="focusPolicy">
-        <enum>Qt::StrongFocus</enum>
-       </property>
-       <property name="clearButtonEnabled">
-        <bool>false</bool>
-       </property>
-      </widget>
+       <item>
+        <widget class="QLabel" name="label_port">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Database Port Number:</string>
+         </property>
+         <property name="buddy">
+          <cstring>db_port_input</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="db_port_input">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Connect to Database</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
+   <item row="8" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <property name="spacing">
       <number>25</number>
@@ -167,10 +180,64 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0">
+   <item row="5" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label_db">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Target Database Name:</string>
+       </property>
+       <property name="buddy">
+        <cstring>db_name_input</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="db_name_input">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::StrongFocus</enum>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Connect to Database</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
     <widget class="QWidget" name="btn_canvas" native="true">
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
+      <item row="2" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <widget class="QPushButton" name="connect_btn">
@@ -219,73 +286,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <property name="spacing">
-      <number>25</number>
-     </property>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="label_host">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Database Host Name / IP:</string>
-         </property>
-         <property name="buddy">
-          <cstring>db_host_nameip_input</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="db_host_nameip_input">
-         <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="label_port">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Database Port Number:</string>
-         </property>
-         <property name="buddy">
-          <cstring>db_port_input</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="db_port_input">
-         <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>

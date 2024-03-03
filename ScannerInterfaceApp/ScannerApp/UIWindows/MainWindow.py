@@ -27,8 +27,8 @@ class MainWindow(QtWidgets.QMainWindow):
     # end application state fields
 
     # settings fields
-    __scan_polling_interval = 0.1
     __auto_push_scans = False # whether app-side item data is pushed to db without a user comparison
+    __scan_polling_interval = 0.1
     # end settings fields
 
     # properties
@@ -70,6 +70,10 @@ class MainWindow(QtWidgets.QMainWindow):
         '''Show loading status'''
         cls.set_sub_status("Loading...")
 
+    @QtCore.pyqtSlot(bool)
+    def set_auto_push(self, value: bool):
+        '''Set settings for auto-pushing scans of existing items onto database'''
+        self.__auto_push_scans = value
   
     def __init__(self, *args, **kwargs):
         '''Main Window Initialization'''
@@ -271,6 +275,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.reset_sub_status()
 
+
     @QtCore.pyqtSlot()
     def toggle_scan_listen(self):
         '''Toggle app listening for new scans'''
@@ -304,6 +309,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.vs_new_scan_btn.setText("Scan")
             self.reset_sub_status()
 
+
     def __do_register_scans(self):
         '''Get scan data, convert it to a new row entry or update it if exists'''
         if self.hearing_scans: # only register scan if hearing scans
@@ -325,6 +331,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 new_cell = self.ui.vs_scans_table.item(targ_row, 0)
                 QtWidgets.QApplication.processEvents()
             QtCore.QTimer.singleShot(int(self.__scan_polling_interval*1000), self.__do_register_scans)
+
 
     @QtCore.pyqtSlot()
     def sync_db_btn_clicked(self):
@@ -378,7 +385,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.disable_scan_listen() # turn off scan listening if on
                     self.set_sub_status("Connected To Database")
                     self.ui.statusbar.force_refresh()
-                    
+
                     options = {
                         "Push data to database": lambda: self.__sync_with_db(True),
                         "Pull data from database": lambda: self.__sync_with_db(False)
@@ -406,6 +413,7 @@ class MainWindow(QtWidgets.QMainWindow):
             login_screen.accepted.connect(on_connect)
             login_screen.exec()
 
+
     def __sync_with_db(self, push: bool):
         '''
         Handle pushing updated versions of items onto DB.
@@ -420,47 +428,143 @@ class MainWindow(QtWidgets.QMainWindow):
                      None
                      ) 
         else: # if connected to a db
+            # prompt to save changes first
+            self.ui.vs_scans_table.try_save_changes()
+            
+            targ_table = ''
+
+            targ_table_input = InputWindow('Enter target table to push/pull',
+                                           'Select target table',
+                                           'ITEM',
+                                           True,
+                                           None,
+                                           None,
+                                           False
+                                           )
+            
+            get_text = targ_table_input.ui.input.text
+            
+            def targ_table():
+                nonlocal targ_table
+                targ_table = get_text()
+
+            targ_table_input.accepted.connect(targ_table)
+            targ_table_input.exec()
+
+            self.set_sub_status("Pushing to database...")
+
             # TODO check if there is an ITEM table in this 
-            # get db handle's cursor and reset it
+            # get db handle's cursorc and reset it
             cursor = self.__db_handle.cursor(dictionary=True)
             cursor.reset()
+
+            # check if table is NOT in DB
+            cursor.execute('SELECT COUNT(*) FROM information_schema.tables WHERE table_name = \'' + targ_table + '\'')
+            result = list(cursor.fetchone().values())[0]
+            if result == 0:
+                OkWindow("Target table not found in database: " + self.__db_handle.database,
+                         "Target table not found",
+                         True,
+                         None
+                         )
+                # close connection to db
+                self.__disconnect_from_db()
+
+            cursor.reset()
+
             # query db ITEM table contents
-            cursor.execute('SELECT * FROM ITEM')
+            cursor.execute('SELECT * FROM ' + targ_table)
+
             # cache raw results
             db_data_raw = cursor.fetchall()
             # translate SQL to list of dicts for app use
             pull_working_data = self.__parse_db_to_runtime(db_data_raw)
 
             if push: # if pushing to db
+                invalid_entries = []
+
+                test_keys = None
+                try:
+                    test_keys = list(list(pull_working_data.values())[0].keys())
+                except:
+                    pass
+
                 # iterate through app-side item data
                 for asset_tag_no in self.scans:
+                    pull_data_keys = pull_working_data.keys()
+                    
                     # if db has item entry with same asset tag number
-                    if asset_tag_no in pull_working_data.keys():
+                    if asset_tag_no in pull_data_keys:
                         if self.__auto_push_scans:
                             # TODO replace entry in pull working data with app scans entry
                             pass
                         else: 
                             # TODO SHOW USER COMPARISON POPUP WINDOW
                             pass
-                    else: # if db does not already have item in it
+                    # if db does not already have item in it
+                    # AND is a valid entry
+                    # TODO check if all NOT NULL fields have values in them
+                    elif test_keys == None or len(self.scans[asset_tag_no].keys()) >= len(test_keys) - 2:
                         # copy item entry into working data
                         pull_working_data[asset_tag_no] = deepcopy(self.scans[asset_tag_no])
+                    else: # if an invalid entry was found
+                        invalid_entries.append(asset_tag_no)
+                    
+                # notify user of any invalid entries
+                if len(invalid_entries) > 0:
+                    # populate label text
+                    label_text = 'The following item entries did not have enough inputted information to be included in the database push:\n'
+                    for entry_key in invalid_entries:
+                        label_text += entry_key + '\n'
 
+                    # notify user
+                    OkWindow(label_text,
+                             'Invalid entries not pushed',
+                             False,
+                             None
+                             )
+                    
                 # copy pull working data back to app-side scans
                 self.scans = deepcopy(pull_working_data)
 
                 # translate dict of dicts working data back into SQL-readable data
-                push_working_data = self.__parse_runtime_to_db(pull_working_data)    
-                # iterate through push data and replace it in db ITEM table    
-                for item_data in push_working_data:
-                    # TODO sql -> replace db item data with corresponding asset tag number with push_working_data's item_data
-                    break
+                push_working_data = self.__parse_runtime_to_db(pull_working_data)
+                
+                try:
+                    # iterate through push data and replace it in db ITEM table    
+                    for item_data_entry in push_working_data:
+                        # replace db item data with corresponding asset tag number with push_working_data's item_data
+                        cursor.reset()
+                        keys = list(item_data_entry.keys())
+                        input = list(item_data_entry.values())
+                        sql = "REPLACE INTO " + targ_table + " (" 
+                        for i in range(len(keys) - 1):
+                            sql += keys[i] + ', '
+                        sql += keys[-1]
+                        sql += ") "
+                        sql += "VALUES ("
+                        for i in range(len(input) - 1):
+                            sql += '%s, '
+                        sql += '%s'
+                        sql += ')'
+                        cursor.execute(sql, input)
+                        
+                        # commit changes to db
+                        self.__db_handle.commit()
+                except sql_connector.DataError as e:
+                    self.set_sub_status("Error during database push")
+                    OkWindow(e.msg, "Error during push", True, None)
+                
+                cursor.close()
 
+                # notify user that push is done
                 OkWindow("Local item data successfully pushed to database.",
                          "DB update successful",
                          True,
                          None
                          )
+            
+            self.reset_sub_status()
 
             # finally, copy updated pull working data back to app-side scans and update table display
             self.scans = deepcopy(pull_working_data)
@@ -473,6 +577,7 @@ class MainWindow(QtWidgets.QMainWindow):
             )
             # close connection to db
             self.__disconnect_from_db()
+
 
     def __try_connect_to_db(self, host: str, port :str, db_name: str, username: str, password: str) -> bool:
         '''Establish connection to DB and return connection handle'''
@@ -524,13 +629,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
             return runtime
 
-    def __parse_runtime_to_db(self, runtime_dict: dict[dict]) -> list[tuple]:
+    def __parse_runtime_to_db(self, runtime_dict: dict[dict]) -> list[dict]:
         '''Translate local runtime data to db-compliant data'''
         if runtime_dict == None or len(runtime_dict) == 0:
             return
         
-        for key in runtime_dict:
-            runtime_dict
+        db_list = []
+        for key, entry in runtime_dict.items():
+            db_list.append(entry)
+
+        return db_list
 
 
     '''
