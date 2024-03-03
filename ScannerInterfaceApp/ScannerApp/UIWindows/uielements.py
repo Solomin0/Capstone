@@ -119,11 +119,13 @@ class StackedWidget(QtWidgets.QStackedWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+
 class MenuBar(QtWidgets.QMenuBar):
     '''Custom menu bar'''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ui.auto_push_scans.triggered.connect(self.set_auto_push)
+
 
 class Table(QtWidgets.QTableWidget):
     '''Custom table widget'''

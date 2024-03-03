@@ -601,6 +601,7 @@ class MainWindow(QtWidgets.QMainWindow):
         except sql_connector.errors.DatabaseError:
             return False
 
+
     def __disconnect_from_db(self):
         '''End connection to DB'''
         # if db handle is already none
@@ -614,6 +615,7 @@ class MainWindow(QtWidgets.QMainWindow):
                      None
                      )
     
+
     def __parse_db_to_runtime(self, db_data: list[tuple]) -> dict[dict]:
         '''Translate db data to locally stored runtime data'''
         if not self.db_connected: 
@@ -632,6 +634,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 runtime[entry[self.scan_entry_primary_key]] = entry
 
             return runtime
+
 
     def __parse_runtime_to_db(self, runtime_dict: dict[dict]) -> list[dict]:
         '''Translate local runtime data to db-compliant data'''
