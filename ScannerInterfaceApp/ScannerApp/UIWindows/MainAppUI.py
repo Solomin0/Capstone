@@ -188,5 +188,5 @@ class Ui_MainWindow(object):
         self.menuSettings.setTitle(_translate("MainWindow", "Settings"))
         self.menuDatabase_Sync.setTitle(_translate("MainWindow", "Database Sync"))
         self.actionBackup_Scans.setText(_translate("MainWindow", "Backup Scans"))
-        self.auto_push_scans.setText(_translate("MainWindow", "Auto-Push"))
+        self.auto_push_scans.setText(_translate("MainWindow", "Auto-Push Changes to Database"))
 from .uielements import PushButton, StackedWidget, StatusBar, Table

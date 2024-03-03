@@ -250,6 +250,14 @@
     </widget>
     <addaction name="menuDatabase_Sync"/>
    </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="save_changes"/>
+    <addaction name="reset_Changes"/>
+   </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
   </widget>
   <action name="actionBackup_Scans">
@@ -262,7 +270,17 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Auto-Push</string>
+    <string>Auto-Push Changes to Database</string>
+   </property>
+  </action>
+  <action name="save_changes">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="reset_Changes">
+   <property name="text">
+    <string>Reset Changes</string>
    </property>
   </action>
  </widget>
