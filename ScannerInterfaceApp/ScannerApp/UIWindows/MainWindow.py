@@ -15,7 +15,7 @@ class MainWindow(QtWidgets.QMainWindow):
     scan_entry_primary_key = 'asset_tag_number' # global reference for 
     hearing_scans = False # whether app is listening for scans
     file_path = "scans//scans.txt"
-    file_heading = '# Test file generated\n# test comment\n#############################\n'
+    file_heading = f'# Scan file generated at {datetime.now().strftime('%m/%d/%Y %H:%M')}\n#############################\n'
     # end public fields
     
     # application state fields
@@ -125,6 +125,8 @@ class MainWindow(QtWidgets.QMainWindow):
         dir_name = file_path.split('//')[0]
         if (not isdir(dir_name)):
             mkdir(dir_name)
+        
+        new_file = isfile(file_path)
 
         #  open scans file
         with open(file_path, 'w+') as f:
@@ -145,7 +147,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 
                 # write scans to file including file heading
                 f.writelines(self.file_heading + json)
-            
+
             else: # if scans dict is None or empty
                 # write empty file with file heading
                 f.writelines(self.file_heading)

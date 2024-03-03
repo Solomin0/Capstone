@@ -1,5 +1,4 @@
-# Test file generated
-# test comment
+# Scan file generated at 03/03/2024 15:59
 #############################
 [
  {
@@ -14028,7 +14027,7 @@
   "CONDITION_CODE": "AU"
  },
  {
-  "ASSET_TAG_NUMBER": "test",
+  "ASSET_TAG_NUMBER": "t",
   "DESCRIPTION": "Undefined",
   "ADDITIONAL_DESCRIPTION": "Undefined",
   "BUILDING_NUMBER": "Undefined",
@@ -14043,7 +14042,7 @@
   "CONDITION_CODE": "AU"
  },
  {
-  "ASSET_TAG_NUMBER": "t",
+  "ASSET_TAG_NUMBER": "test",
   "DESCRIPTION": "Undefined",
   "ADDITIONAL_DESCRIPTION": "Undefined",
   "BUILDING_NUMBER": "Undefined",
