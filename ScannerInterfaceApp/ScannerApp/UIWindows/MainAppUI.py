@@ -127,7 +127,7 @@ class Ui_MainWindow(object):
         self.statusbar.setEnabled(True)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.menuBar = QtWidgets.QMenuBar(parent=MainWindow)
+        self.menuBar = MenuBar(parent=MainWindow)
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 655, 24))
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -142,6 +142,7 @@ class Ui_MainWindow(object):
         self.actionBackup_Scans.setObjectName("actionBackup_Scans")
         self.auto_push_scans = QtGui.QAction(parent=MainWindow)
         self.auto_push_scans.setCheckable(True)
+        self.auto_push_scans.setChecked(False)
         self.auto_push_scans.setObjectName("auto_push_scans")
         self.save_changes = QtGui.QAction(parent=MainWindow)
         self.save_changes.setObjectName("save_changes")
@@ -195,4 +196,4 @@ class Ui_MainWindow(object):
         self.auto_push_scans.setText(_translate("MainWindow", "Auto-Push Changes to Database"))
         self.save_changes.setText(_translate("MainWindow", "Save"))
         self.reset_Changes.setText(_translate("MainWindow", "Reset Changes"))
-from .uielements import PushButton, StackedWidget, StatusBar, Table
+from .uielements import MenuBar, PushButton, StackedWidget, StatusBar, Table

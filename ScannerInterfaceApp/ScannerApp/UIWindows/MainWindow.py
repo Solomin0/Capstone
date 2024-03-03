@@ -14,8 +14,9 @@ class MainWindow(QtWidgets.QMainWindow):
     scans = {} # dict of dicts where asset_tag_number is key
     scan_entry_primary_key = 'asset_tag_number' # global reference for 
     hearing_scans = False # whether app is listening for scans
-    file_path = "scans//scans.txt"
-    file_heading = f'# Scan file generated at {datetime.now().strftime('%m/%d/%Y %H:%M')}\n#############################\n'
+    scans_file_path = "scans//scans.txt"
+    settings_file_path = "settings//settings.txt"
+    file_heading = f'# File generated at {datetime.now().strftime('%m/%d/%Y %H:%M')}\n#############################\n'
     # end public fields
     
     # application state fields
@@ -27,7 +28,12 @@ class MainWindow(QtWidgets.QMainWindow):
     # end application state fields
 
     # settings fields
-    __auto_push_scans = False # whether app-side item data is pushed to db without a user comparison
+    _default_db_host = 'localhost'
+    _default_db_port = ''
+    _default_db_name = 'alpha2'
+    _default_db_table = 'ITEM'
+
+    auto_push_scans = False # whether app-side item data is pushed to db without a user comparison
     __scan_polling_interval = 0.1
     # end settings fields
 
@@ -49,32 +55,30 @@ class MainWindow(QtWidgets.QMainWindow):
         return self.__db_handle != None and self.__db_handle.is_connected()
     # end properties
 
-    @classmethod
-    def set_status(cls, new_status: str):
+    def set_status(self, new_status: str):
         '''Sets the application status'''
-        cls.status = new_status
-
-    @classmethod
-    def set_sub_status(cls, new_sub_status: str):
-        '''Sets application sub-status'''
-        cls.sub_status = new_sub_status
+        self.__status = new_status
         QtWidgets.QApplication.processEvents()
 
-    @classmethod
-    def reset_sub_status(cls):
-        '''Resets sub status'''
-        cls.set_sub_status('')
+    def set_sub_status(self, new_sub_status: str):
+        '''Sets application sub-status'''
+        self.__sub_status = new_sub_status
+        QtWidgets.QApplication.processEvents()
 
-    @classmethod
-    def show_loading(cls):
+    def reset_sub_status(self):
+        '''Resets sub status'''
+        self.set_sub_status('')
+
+    def show_loading(self):
         '''Show loading status'''
-        cls.set_sub_status("Loading...")
+        self.set_sub_status("Loading...")
 
     @QtCore.pyqtSlot(bool)
     def set_auto_push(self, value: bool):
         '''Set settings for auto-pushing scans of existing items onto database'''
-        self.__auto_push_scans = value
+        self.auto_push_scans = value
   
+
     def __init__(self, *args, **kwargs):
         '''Main Window Initialization'''
         super().__init__(*args, **kwargs) # init QTMainWindow
@@ -85,6 +89,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self) # populate window with ui
         self.setWindowTitle(self.__app_title)
 
+        # get settings from local stored file
+        self.load_settings()
+        self.ui.auto_push_scans.setChecked(self.auto_push_scans) 
         # get scans from local storage
         self.read_scans()
 
@@ -97,6 +104,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.vs_scans_table.populate(True) # populate scans table
         
+    @QtCore.pyqtSlot()
+    def closeEvent(self, event):
+        '''Called when application is about to close'''
+        self.save_settings()
+        super(QtWidgets.QMainWindow, self).closeEvent(event)
 
     def try_populate_scan_file(self):
         '''Populate scans file with default values'''
@@ -125,8 +137,6 @@ class MainWindow(QtWidgets.QMainWindow):
         dir_name = file_path.split('//')[0]
         if (not isdir(dir_name)):
             mkdir(dir_name)
-        
-        new_file = isfile(file_path)
 
         #  open scans file
         with open(file_path, 'w+') as f:
@@ -157,7 +167,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def write_scans(self) -> None:
         '''Write runtime scans dict to file'''
-        self.__write_scans_to(self.file_path)
+        self.__write_scans_to(self.scans_file_path)
 
 
     def __read_scans_from(self, file_path: str): 
@@ -206,8 +216,90 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def read_scans(self):
         '''Read scans from file to runtime scans dict'''
-        self.__read_scans_from(self.file_path)
+        self.__read_scans_from(self.scans_file_path)
 
+
+    def try_populate_settings_file(self):
+        '''Populate default settings file'''
+        self._default_db_host = "localhost"
+        self._default_db_port = ""
+        self._default_db_name = "alpha2"
+        self._default_db_table = 'ITEM'
+        self.auto_push_scans = False
+        self.__scan_polling_interval = 0.1
+       
+
+        self.save_settings()
+
+
+    def load_settings(self):
+        '''Read settings from settings file and apply them'''
+        self.set_sub_status("Reading settings file contents...")
+        
+        # if no settings file found, make new one
+        if not isfile(self.settings_file_path):
+            OkWindow("No settings file found! Generating new one!", 
+                     "No settings file found",
+                     False,
+                     None
+                     )
+            
+            self.try_populate_settings_file()
+        # if settings file found
+        else:
+            with open(self.settings_file_path) as f:
+                lines = f.readlines()
+                
+                 # filter out file comments
+                valid_lines = []
+                for line in lines:
+                    if line[0] == ('#' or '\n#' or '# '):
+                        continue
+                    else:
+                        valid_lines.append(line)
+                
+                # join file contents back together
+                loaded_settings = '\n'.join(valid_lines)
+
+                if loaded_settings: # if file is not empty
+                    # convert from JSON to each setting
+                    loaded_settings = loads(loaded_settings)
+
+                    self._default_db_host = loaded_settings[0]
+                    self._default_db_port = loaded_settings[1]
+                    self._default_db_name = loaded_settings[2]
+                    self._default_db_table = loaded_settings[3]
+                    self.auto_push_scans = loaded_settings[4]
+                    self.__scan_polling_interval = loaded_settings[5]
+
+        self.reset_sub_status()
+        
+
+    def save_settings(self):
+        '''Save settings to local settings file'''
+        self.set_sub_status("Writing to file...")
+
+        targ_dir = self.settings_file_path.split('//')[0]
+        if not isdir(targ_dir):
+            mkdir(targ_dir)
+        
+        json = []
+        json.append(self._default_db_host)
+        json.append(self._default_db_port)
+        json.append(self._default_db_name)
+        json.append(self._default_db_table)
+        json.append(self.auto_push_scans)
+        json.append(self.__scan_polling_interval)
+
+        # convert payload to json - indented 1 space
+        json = dumps(json, indent=1)
+
+        with open(self.settings_file_path , 'w+') as f:
+            # write scans to file including file heading
+            f.writelines(self.file_heading + json)
+
+        self.reset_sub_status()
+        
 
     @QtCore.pyqtSlot()
     def try_backup_scans(self):
@@ -357,6 +449,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 True,
                 None,
                 None,
+                self._default_db_host,
+                self._default_db_port,
+                self._default_db_name,
                 False
             )
 
@@ -440,7 +535,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             targ_table_input = InputWindow('Enter target table to push/pull',
                                            'Select target table',
-                                           'ITEM',
+                                           self._default_db_table,
                                            True,
                                            None,
                                            None,
@@ -494,24 +589,56 @@ class MainWindow(QtWidgets.QMainWindow):
                     test_keys = list(list(pull_working_data.values())[0].keys())
                 except:
                     pass
+                
+                def push_scan():
+                    # replace entry in pull working data with app scans entry
+                    pull_working_data[asset_tag_no] = deepcopy(self.scans[asset_tag_no])
+                
+                yes_to_all = False
+                
+                def y_to_all():
+                    nonlocal yes_to_all
+                    yes_to_all = True
 
                 # iterate through app-side item data
                 for asset_tag_no in self.scans:
                     pull_data_keys = pull_working_data.keys()
-                    
+
                     # if db has item entry with same asset tag number
                     if asset_tag_no in pull_data_keys:
-                        if self.__auto_push_scans:
-                            # TODO replace entry in pull working data with app scans entry
-                            pass
-                        else: 
-                            # TODO SHOW USER COMPARISON POPUP WINDOW
-                            pass
+                        if self.auto_push_scans or yes_to_all:
+                            # replace entry in pull working data with app scans entry
+                            push_scan()
+                        else:
+                            # SHOW USER COMPARISON POPUP WINDOW
+                            scans_option_text = 'LOCAL SCAN:\n'
+                            pull_data_option_text = 'PULLED FROM DATABASE:\n'
+
+                            # populate option button text with item entry data
+                            for col, value in self.scans[asset_tag_no].items():
+                                scans_option_text += f"{col} : {value}\n"
+                            for col, value in pull_working_data[asset_tag_no].items():
+                                pull_data_option_text += f"{col} : {value}\n"
+                           
+                            # define options menu options
+                            options = {
+                                scans_option_text: push_scan,
+                                pull_data_option_text: None,
+                                "Yes to All": lambda: [push_scan(), y_to_all()]
+                            }
+
+                            # show option menu
+                            compare_window = OptionWindow("Choose which item entry to push to database:",
+                                         "Choose push entry",
+                                         True,
+                                         options
+                                         )
+                            
                     # if db does not already have item in it AND is a valid entry
                     # TODO check if all NOT NULL fields have values in them
                     elif test_keys == None or len(self.scans[asset_tag_no].keys()) >= len(test_keys) - 2:
                         # copy item entry into working data
-                        pull_working_data[asset_tag_no] = deepcopy(self.scans[asset_tag_no])
+                        push_scan()
                     # if an invalid entry was found
                     else: 
                         invalid_entries.append(asset_tag_no)

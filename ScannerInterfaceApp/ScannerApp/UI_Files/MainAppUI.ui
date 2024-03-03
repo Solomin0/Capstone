@@ -224,7 +224,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
+  <widget class="MenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -260,6 +260,9 @@
   <action name="auto_push_scans">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Auto-Push Changes to Database</string>
@@ -306,6 +309,11 @@
   <customwidget>
    <class>StatusBar</class>
    <extends>QStatusBar</extends>
+   <header>.uielements.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MenuBar</class>
+   <extends>QMenuBar</extends>
    <header>.uielements.h</header>
   </customwidget>
  </customwidgets>
@@ -494,5 +502,6 @@
   <slot>disable_scan_listen()</slot>
   <slot>sync_db_btn_clicked()</slot>
   <slot>set_auto_push(bool)</slot>
+  <slot>on_closing()</slot>
  </slots>
 </ui>

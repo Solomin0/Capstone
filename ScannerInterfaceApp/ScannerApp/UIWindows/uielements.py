@@ -82,9 +82,18 @@ class InputWindow(Popup):
 
 class DBConnectWindow(Popup):
     '''Dialog box for establishing connection to database'''
-    def __init__(self, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
+    def __init__(self, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, default_host, default_port, default_db, auto_exec: bool = True, *args, **kwargs):
         super().__init__(Ui_DBSyncLogin, label_text, window_text, set_modal, on_accept, on_reject, auto_exec, *args, **kwargs)
         self.ui.db_host_nameip_input.setFocus()
+        if default_host != None:
+            self.ui.db_host_nameip_input.setText(default_host)
+        if default_port != None:
+            self.ui.db_port_input.setText(default_port)
+        if default_db != None:
+            self.ui.db_name_input.setText(default_db)
+
+        if self.ui.db_name_input.text() != "":
+            self.ui.username_input.setFocus()
 
 class OptionWindow(Popup):
     '''
@@ -103,7 +112,8 @@ class OptionWindow(Popup):
                 option_btn = QtWidgets.QPushButton(parent=self.ui.button_box)
                 option_btn.setObjectName(button_text)
                 option_btn.setText(button_text)
-                option_btn.clicked.connect(callback)
+                if callback != None:
+                    option_btn.clicked.connect(callback)
                 option_btn.clicked.connect(self.accept)
                 self.ui.verticalLayout.addWidget(option_btn)
             QtWidgets.QApplication.processEvents()
@@ -124,7 +134,7 @@ class MenuBar(QtWidgets.QMenuBar):
     '''Custom menu bar'''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ui.auto_push_scans.triggered.connect(self.set_auto_push)
+        # self.ui.auto_push_scans.triggered.connect(self.window().set_auto_push)
 
 
 class Table(QtWidgets.QTableWidget):
