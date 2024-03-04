@@ -628,7 +628,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             }
 
                             # show option menu
-                            compare_window = OptionWindow("Choose which item entry to push to database:",
+                            OptionWindow("Choose which item entry to push to database:",
                                          "Choose push entry",
                                          True,
                                          options
