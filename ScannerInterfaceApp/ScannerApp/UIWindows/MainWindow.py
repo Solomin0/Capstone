@@ -327,8 +327,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def __backup_scans(self, backup_file_name: str):
         '''Serialize current scans to backup local timestampted file'''
-        if (backup_file_name is None): 
-            print("No file name given!")
+        if (backup_file_name is None or backup_file_name == ""): 
+            #print("No file name given!")
+            OkWindow("No file name given!", 'No file name given', True, None)
             return
         
         # add json extension to file name if not there already
@@ -687,19 +688,19 @@ class MainWindow(QtWidgets.QMainWindow):
                         
                         # commit changes to db
                         self.__db_handle.commit()
+
+                    # notify user that push is done
+                    OkWindow("Local item data successfully pushed to database.",
+                            "DB update successful",
+                            True,
+                            None
+                            )
                 except sql_connector.DataError as e:
                     self.set_sub_status("Error during database push")
-                    OkWindow(e.msg, "Error during push", True, None)
+                    OkWindow(e.msg + '\nNo data was pushed.', "Error during push", True, None)
                 
                 cursor.close()
 
-                # notify user that push is done
-                OkWindow("Local item data successfully pushed to database.",
-                         "DB update successful",
-                         True,
-                         None
-                         )
-            
             self.reset_sub_status()
 
             # finally, copy updated pull working data back to app-side scans and update table display

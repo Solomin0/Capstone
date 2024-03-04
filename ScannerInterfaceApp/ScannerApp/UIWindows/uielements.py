@@ -211,7 +211,7 @@ class Table(QtWidgets.QTableWidget):
                 cell.setText(str(content))
                 # place cell on table
                 self.setItem(i, j, cell)
-        print("Scans table populated! Num Cols: ", self.columnCount(),"Num Rows: ", self.rowCount())
+        # print("Scans table populated! Num Cols: ", self.columnCount(),"Num Rows: ", self.rowCount())
     
     @QtCore.pyqtSlot(int, int)
     def update_scans(self, row, col):
