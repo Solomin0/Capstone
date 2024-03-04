@@ -507,7 +507,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     label_port = port
                     if (port == "" or port == None):
                         label_port = str(3306)
-                    label_text = f"Cannot connect to database\nHost: {host}\nPort: {label_port}\nUsername: {user}"
+                    label_text = f"Cannot connect to database\nHost: {host}\nPort: {label_port}\nTarget Database: {database}\nUsername: {user}"
                     OkWindow(label_text, "Connection Failed", True, None)
                     self.set_sub_status(previous_sub_status)
                     self.ui.statusbar.force_refresh()
