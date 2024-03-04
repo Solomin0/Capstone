@@ -611,14 +611,14 @@ class MainWindow(QtWidgets.QMainWindow):
                             push_scan()
                         else:
                             # SHOW USER COMPARISON POPUP WINDOW
-                            scans_option_text = 'LOCAL SCAN:\n'
-                            pull_data_option_text = 'PULLED FROM DATABASE:\n'
+                            scans_option_text = '===== LOCAL SCAN: ====='
+                            pull_data_option_text = '===== PULLED FROM DATABASE: ====='
 
                             # populate option button text with item entry data
                             for col, value in self.scans[asset_tag_no].items():
-                                scans_option_text += f"{col} : {value}\n"
+                                scans_option_text += f"\n{col} : {value}"
                             for col, value in pull_working_data[asset_tag_no].items():
-                                pull_data_option_text += f"{col} : {value}\n"
+                                pull_data_option_text += f"\n{col} : {value}"
                            
                             # define options menu options
                             options = {

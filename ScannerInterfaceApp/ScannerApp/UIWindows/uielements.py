@@ -108,6 +108,9 @@ class OptionWindow(Popup):
             self.ui.option_btn.hide() # hide the initial button
             self.ui.option_btn.setFocus()
             # populate option buttons and connect them with passed slots
+
+            self.font().setPointSize(10)
+
             for button_text, callback in callbacks.items():    
                 option_btn = QtWidgets.QPushButton(parent=self.ui.button_box)
                 option_btn.setObjectName(button_text)
