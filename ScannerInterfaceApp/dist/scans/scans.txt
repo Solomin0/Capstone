@@ -1,6 +1,21 @@
-# File generated at 03/03/2024 20:40
+# File generated at 03/04/2024 16:29
 #############################
 [
+ {
+  "ASSET_TAG_NUMBER": "22222",
+  "DESCRIPTION": "Undefined",
+  "ADDITIONAL_DESCRIPTION": "Undefined",
+  "BUILDING_NUMBER": "Undefined",
+  "SITE_USED": "Undefined",
+  "ASSIGNED_TO": "Undefined",
+  "ROOM_NUMBER": "Undefined",
+  "MANUEFACTURER": "Undefined",
+  "MODEL_NUMBER": "Undefined",
+  "PART_NUMBER": "Undefined",
+  "SERIAL_NUMBER": "Undefined",
+  "UTILIZATION_CODE": "A",
+  "CONDITION_CODE": "AU"
+ },
  {
   "ASSET_TAG_NUMBER": "338006",
   "DESCRIPTION": "Undefined",
@@ -14102,7 +14117,7 @@
   "CONDITION_CODE": "AU"
  },
  {
-  "ASSET_TAG_NUMBER": "22222",
+  "ASSET_TAG_NUMBER": "b",
   "DESCRIPTION": "Undefined",
   "ADDITIONAL_DESCRIPTION": "Undefined",
   "BUILDING_NUMBER": "Undefined",
@@ -14113,7 +14128,7 @@
   "MODEL_NUMBER": "Undefined",
   "PART_NUMBER": "Undefined",
   "SERIAL_NUMBER": "Undefined",
-  "UTILIZATION_CODE": "A",
-  "CONDITION_CODE": "AU"
+  "UTILIZATION_CODE": "Undefined",
+  "CONDITION_CODE": "Undefined"
  }
 ]
