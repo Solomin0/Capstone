@@ -409,6 +409,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.hearing_scans: # only register scan if hearing scans
             # add new blank row if needed 
             self.ui.vs_scans_table.add_row()
+            
             # get row index of newly added row
             targ_row = self.ui.vs_scans_table.rowCount() - 1
             
@@ -421,7 +422,9 @@ class MainWindow(QtWidgets.QMainWindow):
             # wait for enough text to be entered into asset_tag_number cell before refreshing scan listen 
             new_cell = self.ui.vs_scans_table.item(targ_row, 0)
 
-            while self.ui.vs_scans_table.currentItem() == new_cell and (new_cell == None or len(new_cell.text()) < 1):
+            while (self.ui.vs_scans_table.currentItem() != None 
+                   and self.ui.vs_scans_table.currentItem() == new_cell 
+                   and (new_cell == None or len(new_cell.text()) < 1)):
                 new_cell = self.ui.vs_scans_table.item(targ_row, 0)
                 QtWidgets.QApplication.processEvents()
             QtCore.QTimer.singleShot(int(self.__scan_polling_interval*1000), self.__do_register_scans)
@@ -775,29 +778,3 @@ class MainWindow(QtWidgets.QMainWindow):
             db_list.append(entry)
 
         return db_list
-
-
-    '''
-    @QtCore.pyqtSlot(int)
-    def goto_screen(self, value: int):
-        # TODO clear all values on current screen
-        if self.ui.main_screen_stack.currentIndex == value: return
-
-        # grab app title
-        new_title = self.__app_title
-
-        if value == 0:
-            # move to main menu   
-            new_title += ' - Main Menu'
-        elif value == 1:
-            # new scan
-            new_title += ' - New Scan'
-        elif value == 2:
-            # view scans
-            new_title += ' - View Scans'
-            self.ui.vs_scans_table.populate(True) # populate scans table on new screen
-
-        self.setWindowTitle(new_title) # set new window title
-        # enable to corresponding screen
-        self.ui.main_screen_stack.setCurrentIndex(value)
-    '''

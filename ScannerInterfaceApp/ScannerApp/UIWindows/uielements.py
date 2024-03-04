@@ -270,6 +270,7 @@ class Table(QtWidgets.QTableWidget):
                     return
                 
                 found_duplicate = False
+                duplicate_row = 0
                 # if new value is not blank
                 # check for duplicate serial numbers
                 for seral_no in self.working_data.keys():
@@ -277,10 +278,31 @@ class Table(QtWidgets.QTableWidget):
                     if new_value == seral_no:
                         found_duplicate = True
                         break
+                    else:
+                        duplicate_row += 1
                 
                 if found_duplicate:
-                    # TODO find row corresponding to entered entry key
+                    # disable scan listen so cursor doesnt stay at the bottom of the table
+                    self.window().disable_scan_listen()
 
+                    # close the editor on the new row's cell
+                    # self.closeEditor(self, QtWidgets.QAbstractItemDelegate.EndEditHint.NoHint)
+                    # QtCore.QCoreApplication.processEvents()
+
+                    # remove newly added blank row
+                    self.removeRow(self.rowCount() - 1)
+
+                    # make table the focused widget
+                    self.setFocus()
+
+                    # select current row to editing
+                    self.setCurrentCell(duplicate_row, 0)
+
+                     # clear out newly added row
+                    # for column in range(self.columnCount()):
+                    #     self.setItem(row, column, None)
+                    
+                    '''
                     # init notification window
                     dup_notif = OkWindow(
                         "Cannot enter duplicate entry key.",
@@ -289,15 +311,11 @@ class Table(QtWidgets.QTableWidget):
                         None,
                         False
                     )
-
-                    # clear out newly added row
-                    for column in range(self.columnCount()):
-                        self.setItem(row, column, None)
-
                     # notify user
                     dup_notif.exec()
+                    '''
                     return 
-
+                
                 # copy previous row's content to new row
                 if new_value not in self.working_data.keys():
                     # self.working_data[new_value] = scans_vals[-1].copy()
