@@ -279,6 +279,8 @@ class Table(QtWidgets.QTableWidget):
                         break
                 
                 if found_duplicate:
+                    # TODO find row corresponding to entered entry key
+
                     # init notification window
                     dup_notif = OkWindow(
                         "Cannot enter duplicate entry key.",
@@ -288,21 +290,12 @@ class Table(QtWidgets.QTableWidget):
                         False
                     )
 
-                    # set serial number of default value
-                    '''
-                    new_value = new_entry_key
-                    self.working_data[new_value] = scans_vals[-1].copy()
-                    self.working_data[new_value][self.window().scan_entry_primary_key] = new_value
-                    self.item(row, col).setText(new_value)
-                    '''
-
                     # clear out newly added row
                     for column in range(self.columnCount()):
                         self.setItem(row, column, None)
 
                     # notify user
                     dup_notif.exec()
-
                     return 
 
                 # copy previous row's content to new row
