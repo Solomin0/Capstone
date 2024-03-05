@@ -1,0 +1,10 @@
+# File generated at 03/05/2024 15:16
+#############################
+[
+ "localhost",
+ "",
+ "alpha2",
+ "ITEM",
+ false,
+ 0.1
+]

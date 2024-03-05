@@ -524,7 +524,6 @@ class MainWindow(QtWidgets.QMainWindow):
         '''
         Handle pushing updated versions of items onto DB.
         Prompts user to select from duplicates. 
-        TODO MUST HANDLE DUPLICATE SCANS CONFLICTS PRIOR TO PUSHING TO DB'
         '''
         # if db is not connected
         if not self.db_connected:
@@ -559,7 +558,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.set_sub_status("Pushing to database...")
 
-            # TODO check if there is an ITEM table in this 
             # get db handle's cursorc and reset it
             cursor = self.__db_handle.cursor(dictionary=True)
             cursor.reset()
@@ -568,13 +566,14 @@ class MainWindow(QtWidgets.QMainWindow):
             cursor.execute('SELECT COUNT(*) FROM information_schema.tables WHERE table_name = \'' + targ_table + '\'')
             result = list(cursor.fetchone().values())[0]
             if result == 0:
-                OkWindow("Target table not found in database: " + self.__db_handle.database,
+                OkWindow("Target table " + targ_table + " not found in database: " + self.__db_handle.database,
                          "Target table not found",
                          True,
                          None
                          )
                 # close connection to db
                 self.__disconnect_from_db()
+                return
 
             cursor.reset()
 
