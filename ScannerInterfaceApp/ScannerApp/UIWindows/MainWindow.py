@@ -34,7 +34,7 @@ class MainWindow(QtWidgets.QMainWindow):
     _default_db_table = 'ITEM'
 
     auto_push_scans = False # whether app-side item data is pushed to db without a user comparison
-    __scan_polling_interval = 0.1
+    __scan_polling_interval = 0.5
     # end settings fields
 
     # properties
@@ -424,13 +424,14 @@ class MainWindow(QtWidgets.QMainWindow):
             
             # wait for enough text to be entered into asset_tag_number cell before refreshing scan listen 
             new_cell = self.ui.vs_scans_table.item(targ_row, 0)
-
-            while (self.ui.vs_scans_table.currentItem() != None 
-                   and self.ui.vs_scans_table.currentItem() == new_cell 
-                   and (new_cell == None or len(new_cell.text()) < 1)):
+            selected_item = self.ui.vs_scans_table.currentItem()
+            while (self.hearing_scans 
+                   and selected_item == new_cell 
+                   and (new_cell == None or len(new_cell.text()) == 0)):
                 new_cell = self.ui.vs_scans_table.item(targ_row, 0)
                 QtWidgets.QApplication.processEvents()
-            QtCore.QTimer.singleShot(int(self.__scan_polling_interval*1000), self.__do_register_scans)
+            if self.hearing_scans:
+                QtCore.QTimer.singleShot(int(self.__scan_polling_interval*1000), self.__do_register_scans)
 
 
     @QtCore.pyqtSlot()
@@ -586,6 +587,9 @@ class MainWindow(QtWidgets.QMainWindow):
             # translate SQL to list of dicts for app use
             pull_working_data = self.__parse_db_to_runtime(db_data_raw)
 
+            ## NOTE: if item's entry key was changed in this app, it will push a DUPLICATE entry (different key) onto db!
+            ## NOTE: tracking the previously changed entry keys is a possible solution, but that would means comparing each item's previous keys to every row's key in the db...
+            
             if push: # if pushing to db
                 invalid_entries = []
 
