@@ -534,8 +534,9 @@ class MainWindow(QtWidgets.QMainWindow):
                      None
                      ) 
         else: # if connected to a db
-            # prompt to save changes first
-            self.ui.vs_scans_table.try_save_changes()
+            if push:
+                # prompt to save changes first
+                self.ui.vs_scans_table.try_save_changes()
             
             targ_table = ''
 
