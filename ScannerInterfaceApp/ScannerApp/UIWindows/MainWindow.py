@@ -17,6 +17,7 @@ class MainWindow(QtWidgets.QMainWindow):
     scans_file_path = "scans//scans.txt"
     settings_file_path = "settings//settings.txt"
     file_heading = f'# File generated at {datetime.now().strftime('%m/%d/%Y %H:%M')}\n#############################\n'
+    invalid_chars = ['\'', '<', '>', '\"', '%', '@', '&', '*', '(', ')', '+', '\\', r'\'', r'\"']
     # end public fields
     
     # application state fields
@@ -108,6 +109,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         '''Called when application is about to close'''
         self.save_settings()
+        if self.db_connected:
+            self.__disconnect_from_db()
         super(QtWidgets.QMainWindow, self).closeEvent(event)
 
     def try_populate_scan_file(self):

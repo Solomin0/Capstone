@@ -1,0 +1,12 @@
+# File generated at 03/05/2024 16:33
+#############################
+[
+ {
+  "asset_tag_number": "12345",
+  "description": "laptop"
+ },
+ {
+  "asset_tag_number": "1224",
+  "short_desc": "Desktop"
+ }
+]

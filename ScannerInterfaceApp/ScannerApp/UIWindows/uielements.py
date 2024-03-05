@@ -223,9 +223,21 @@ class Table(QtWidgets.QTableWidget):
             return
         
         scans_vals = list(self.working_data.values())
+
         # find cell with the typed value in it
         new_value = self.item(row, col).text()
-
+        
+        found_invalid_chars = []
+        # check input for invalid characters
+        for char in self.window().invalid_chars:
+            if char in new_value:
+                found_invalid_chars.append(char)
+                
+        if len(found_invalid_chars) > 0:
+            self.__register_invalid_scan()
+            OkWindow('Invalid character(s) entered: ' + str(found_invalid_chars), 'Invalid char entered', True, None)
+            return 
+        
         # if target row is not the first one
         # make sure there are no empty rows above target
         if row != 0:
@@ -282,18 +294,7 @@ class Table(QtWidgets.QTableWidget):
                         duplicate_row += 1
                 
                 if found_duplicate:
-                    # disable scan listen so cursor doesnt stay at the bottom of the table
-                    self.window().disable_scan_listen()
-
-                    # close the editor on the new row's cell
-                    # self.closeEditor(self, QtWidgets.QAbstractItemDelegate.EndEditHint.NoHint)
-                    # QtCore.QCoreApplication.processEvents()
-
-                    # remove newly added blank row
-                    self.removeRow(self.rowCount() - 1)
-
-                    # make table the focused widget
-                    self.setFocus()
+                    self.__register_invalid_scan()
 
                     # select current row to editing
                     self.setCurrentCell(duplicate_row, 0)
@@ -406,7 +407,7 @@ class Table(QtWidgets.QTableWidget):
               True,
               on_accept=self.__save_changes,
               on_reject=None)
-        
+    
     @QtCore.pyqtSlot()
     def reset_table(self):
         '''Resets the table to original values'''
@@ -472,3 +473,18 @@ class Table(QtWidgets.QTableWidget):
         
         # if no rows have an column entry at the passed index
         return None
+    
+
+    def __register_invalid_scan(self):
+        # disable scan listen so cursor doesnt stay at the bottom of the table
+        self.window().disable_scan_listen()
+
+        # close the editor on the new row's cell
+        # self.closeEditor(self, QtWidgets.QAbstractItemDelegate.EndEditHint.NoHint)
+        # QtCore.QCoreApplication.processEvents()
+
+        # remove newly added blank row
+        self.removeRow(self.rowCount() - 1)
+
+        # make table the focused widget
+        self.setFocus()
