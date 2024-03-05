@@ -53,6 +53,9 @@ class Ui_MainWindow(object):
         self.vs_add_row_btn.setObjectName("vs_add_row_btn")
         self.horizontalLayout_5.addWidget(self.vs_add_row_btn)
         self.vs_new_scan_btn = PushButton(parent=self.view_scans)
+        self.vs_new_scan_btn.setStyleSheet("background-color: \"Orange\";\n"
+"font: 12pt \"MS Shell Dlg 2\";\n"
+"color: \"Black\";")
         self.vs_new_scan_btn.setObjectName("vs_new_scan_btn")
         self.horizontalLayout_5.addWidget(self.vs_new_scan_btn)
         self.verticalLayout_6.addLayout(self.horizontalLayout_5)

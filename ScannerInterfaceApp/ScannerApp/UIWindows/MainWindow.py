@@ -386,19 +386,21 @@ class MainWindow(QtWidgets.QMainWindow):
     def disable_scan_listen(self):
         "Disable listening for new scans"
         self.hearing_scans = False
+        self.ui.vs_new_scan_btn.setStyleSheet("background-color: Orange; font: 12pt MS Shell Dlg 2; color: black")
         self.__update_scan_status()
 
     def enable_scan_listen(self):
         '''Enable listening for new scans'''
         if not self.db_connected:
             self.hearing_scans = True
+            self.ui.vs_new_scan_btn.setStyleSheet("background-color: Green; font: 12pt MS Shell Dlg 2; color: white")
             self.__update_scan_status()
             self.__do_register_scans()
 
     def __update_scan_status(self):
         '''Updates text/color on scans button'''
         if self.hearing_scans:
-            self.ui.vs_new_scan_btn.setText("Scanning")
+            self.ui.vs_new_scan_btn.setText("Listening")
             self.set_sub_status("Listening for scans...")
         else:
             self.ui.vs_new_scan_btn.setText("Scan")

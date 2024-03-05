@@ -86,6 +86,11 @@
           </item>
           <item>
            <widget class="PushButton" name="vs_new_scan_btn">
+            <property name="styleSheet">
+             <string notr="true">background-color: &quot;Orange&quot;;
+font: 12pt &quot;MS Shell Dlg 2&quot;;
+color: &quot;Black&quot;;</string>
+            </property>
             <property name="text">
              <string>Scan</string>
             </property>
