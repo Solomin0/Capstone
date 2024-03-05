@@ -227,15 +227,12 @@ class Table(QtWidgets.QTableWidget):
         # find cell with the typed value in it
         new_value = self.item(row, col).text()
         
-        found_invalid_chars = []
         # check input for invalid characters
-        for char in self.window().invalid_chars:
-            if char in new_value:
-                found_invalid_chars.append(char)
-                
-        if len(found_invalid_chars) > 0:
+        inv_chars = self.window().find_invalid_chars(new_value)
+        
+        if  len(inv_chars) > 0:
             self.__register_invalid_scan()
-            OkWindow('Invalid character(s) entered: ' + str(found_invalid_chars), 'Invalid char entered', True, None)
+            OkWindow('Invalid character(s) entered: ' + str(inv_chars), 'Invalid char entered', True, None)
             return 
         
         # if target row is not the first one

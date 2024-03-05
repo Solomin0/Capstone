@@ -17,13 +17,13 @@ class MainWindow(QtWidgets.QMainWindow):
     scans_file_path = "scans//scans.txt"
     settings_file_path = "settings//settings.txt"
     file_heading = f'# File generated at {datetime.now().strftime('%m/%d/%Y %H:%M')}\n#############################\n'
-    invalid_chars = ['\'', '<', '>', '\"', '%', '@', '&', '*', '(', ')', '+', '\\', r'\'', r'\"']
+    invalid_chars = ['<', '>', '%', '@', '*', '\\', r'\'', r'\"']
     # end public fields
     
     # application state fields
     __app_title = 'Asset Scanner Application'
     __version_no = 'v0.0.1'
-    __status = "Unitialized"
+    __status = "Uninitialized"
     __sub_status = ""
     __db_handle = None
     # end application state fields
@@ -372,7 +372,18 @@ class MainWindow(QtWidgets.QMainWindow):
             showSuccess()
         
         self.reset_sub_status()
-
+    
+    def find_invalid_chars(self, test_string: str) -> list[str]:
+        '''Return number of invalid chars in string'''
+        if test_string == None or test_string == '' or len(test_string) == 0:
+            return []
+        else:
+            found_invalid_chars = []
+            # check input for invalid characters
+            for char in self.invalid_chars:
+                if char in test_string:
+                    found_invalid_chars.append(char)
+            return found_invalid_chars
 
     @QtCore.pyqtSlot()
     def toggle_scan_listen(self):
