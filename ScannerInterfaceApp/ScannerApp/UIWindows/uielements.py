@@ -14,38 +14,6 @@ class PushButton(QtWidgets.QPushButton):
         super().__init__(*args, **kwargs)
 
 
-class StatusBar(QtWidgets.QStatusBar):
-    '''Custom status bar'''
-    # status bar refresh inverval in seconds
-    __refresh_interval = 0.2
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # setup and run thread for updating status
-        self.__refresh_status()
-
-    def force_refresh(self):
-        '''Forces Status Bar UI refresh'''
-        self.__populate_status()
-        QtWidgets.QApplication.processEvents()
-
-    @QtCore.pyqtSlot()
-    def __refresh_status(self):
-        '''Periodically refresh status bar'''
-        self.__populate_status()
-         # call method again every tick of the app internal clock
-        # slightly delayed due to internal clock being init'd before statusbar obj
-        # print("Status bar refreshed!")
-        QtCore.QTimer.singleShot(int(self.__refresh_interval*1000), self.__refresh_status)
-
-    def __populate_status(self):
-        '''Handle populating status bar ui with target string(s)'''
-        if (self.parentWidget().sub_status == "" or self.parentWidget().sub_status == None):
-            self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status}')
-        else:
-            self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status} - {self.parentWidget().sub_status}')
-
-
 class Popup(QtWidgets.QDialog):
     '''Base class for all dialogs'''
     def __init__(self, ui: type, label_text: str, window_text: str, set_modal: bool, on_accept, on_reject, auto_exec: bool = True, *args, **kwargs):
@@ -138,6 +106,38 @@ class MenuBar(QtWidgets.QMenuBar):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.ui.auto_push_scans.triggered.connect(self.window().set_auto_push)
+
+
+class StatusBar(QtWidgets.QStatusBar):
+    '''Custom status bar'''
+    # status bar refresh inverval in seconds
+    __refresh_interval = 0.2
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # setup and run thread for updating status
+        self.__refresh_status()
+
+    def force_refresh(self):
+        '''Forces Status Bar UI refresh'''
+        self.__populate_status()
+        QtWidgets.QApplication.processEvents()
+
+    @QtCore.pyqtSlot()
+    def __refresh_status(self):
+        '''Periodically refresh status bar'''
+        self.__populate_status()
+         # call method again every tick of the app internal clock
+        # slightly delayed due to internal clock being init'd before statusbar obj
+        # print("Status bar refreshed!")
+        QtCore.QTimer.singleShot(int(self.__refresh_interval*1000), self.__refresh_status)
+
+    def __populate_status(self):
+        '''Handle populating status bar ui with target string(s)'''
+        if (self.parentWidget().sub_status == "" or self.parentWidget().sub_status == None):
+            self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status}')
+        else:
+            self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status} - {self.parentWidget().sub_status}')
 
 
 class Table(QtWidgets.QTableWidget):
@@ -471,5 +471,4 @@ class Table(QtWidgets.QTableWidget):
                 continue
         
         # if no rows have an column entry at the passed index
-        return None;            
-
+        return None
