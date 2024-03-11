@@ -56,31 +56,31 @@ class MainWindow(QtWidgets.QMainWindow):
         return self.__db_handle != None and self.__db_handle.is_connected()
     # end properties
 
-    def set_status(self, new_status: str):
+    def set_status(self, new_status: str) -> None:
         '''Sets the application status'''
         self.__status = new_status
         QtWidgets.QApplication.processEvents()
 
-    def set_sub_status(self, new_sub_status: str):
+    def set_sub_status(self, new_sub_status: str) -> None:
         '''Sets application sub-status'''
         self.__sub_status = new_sub_status
         QtWidgets.QApplication.processEvents()
 
-    def reset_sub_status(self):
+    def reset_sub_status(self) -> None:
         '''Resets sub status'''
         self.set_sub_status('')
 
-    def show_loading(self):
+    def show_loading(self) -> None:
         '''Show loading status'''
         self.set_sub_status("Loading...")
 
     @QtCore.pyqtSlot(bool)
-    def set_auto_push(self, value: bool):
+    def set_auto_push(self, value: bool) -> None:
         '''Set settings for auto-pushing scans of existing items onto database'''
         self.auto_push_scans = value
   
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         '''Main Window Initialization'''
         super().__init__(*args, **kwargs) # init QTMainWindow
 
@@ -106,14 +106,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.vs_scans_table.populate(True) # populate scans table
         
     @QtCore.pyqtSlot()
-    def closeEvent(self, event):
+    def closeEvent(self, event) -> None:
         '''Called when application is about to close'''
         self.save_settings()
         if self.db_connected:
             self.__disconnect_from_db()
         super(QtWidgets.QMainWindow, self).closeEvent(event)
 
-    def try_populate_scan_file(self):
+    def try_populate_scan_file(self) -> None:
         '''Populate scans file with default values'''
         new_scan = {
             self.scan_entry_primary_key: '12345',
@@ -131,7 +131,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.write_scans()
 
 
-    def __write_scans_to(self, file_path: str):
+    def __write_scans_to(self, file_path: str) -> None:
         '''Write scans to target file at passed path'''
         
         self.set_sub_status("Writing to file...")
@@ -173,7 +173,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.__write_scans_to(self.scans_file_path)
 
 
-    def __read_scans_from(self, file_path: str): 
+    def __read_scans_from(self, file_path: str) -> None: 
         '''Read scans from file to runtime scans dict'''
         # return if no file
         if (not isfile(file_path)):
@@ -217,12 +217,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.reset_sub_status() 
 
 
-    def read_scans(self):
+    def read_scans(self) -> None:
         '''Read scans from file to runtime scans dict'''
         self.__read_scans_from(self.scans_file_path)
 
 
-    def try_populate_settings_file(self):
+    def try_populate_settings_file(self) -> None:
         '''Populate default settings file'''
         self._default_db_host = "localhost"
         self._default_db_port = ""
@@ -235,7 +235,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.save_settings()
 
 
-    def load_settings(self):
+    def load_settings(self) -> None:
         '''Read settings from settings file and apply them'''
         self.set_sub_status("Reading settings file contents...")
         
@@ -278,7 +278,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.reset_sub_status()
         
 
-    def save_settings(self):
+    def save_settings(self) -> None:
         '''Save settings to local settings file'''
         self.set_sub_status("Writing to file...")
 
@@ -305,7 +305,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
 
     @QtCore.pyqtSlot()
-    def try_backup_scans(self):
+    def try_backup_scans(self) -> None:
         '''Serialize current scans to backup local timestamped file'''
         # prompt to save changes first
         self.ui.vs_scans_table.try_save_changes()
@@ -328,7 +328,7 @@ class MainWindow(QtWidgets.QMainWindow):
         inputWin.exec()
 
 
-    def __backup_scans(self, backup_file_name: str):
+    def __backup_scans(self, backup_file_name: str) -> None:
         '''Serialize current scans to backup local timestampted file'''
         if (backup_file_name is None or backup_file_name == ""): 
             #print("No file name given!")
@@ -386,7 +386,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return found_invalid_chars
 
     @QtCore.pyqtSlot()
-    def toggle_scan_listen(self):
+    def toggle_scan_listen(self) -> None:
         '''Toggle app listening for new scans'''
         # cannot enable scan hearing while db is connected
         if not self.hearing_scans and self.db_connected:
@@ -397,13 +397,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.enable_scan_listen()
 
     @QtCore.pyqtSlot()
-    def disable_scan_listen(self):
+    def disable_scan_listen(self) -> None:
         "Disable listening for new scans"
         self.hearing_scans = False
         self.ui.vs_new_scan_btn.setStyleSheet("background-color: Orange; font: 12pt MS Shell Dlg 2; color: black")
         self.__update_scan_status()
 
-    def enable_scan_listen(self):
+    def enable_scan_listen(self) -> None:
         '''Enable listening for new scans'''
         if not self.db_connected:
             self.hearing_scans = True
@@ -411,7 +411,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.__update_scan_status()
             self.__do_register_scans()
 
-    def __update_scan_status(self):
+    def __update_scan_status(self) -> None:
         '''Updates text/color on scans button'''
         if self.hearing_scans:
             self.ui.vs_new_scan_btn.setText("Listening")
@@ -421,7 +421,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.reset_sub_status()
 
 
-    def __do_register_scans(self):
+    def __do_register_scans(self) -> None:
         '''Get scan data, convert it to a new row entry or update it if exists'''
         if self.hearing_scans: # only register scan if hearing scans
             # add new blank row if needed 
@@ -449,7 +449,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     @QtCore.pyqtSlot()
-    def sync_db_btn_clicked(self):
+    def sync_db_btn_clicked(self) -> None:
         '''Register connected to database button clicked'''
         # disable scan listen if on
         if self.window().hearing_scans:
@@ -535,7 +535,7 @@ class MainWindow(QtWidgets.QMainWindow):
             login_screen.exec()
 
 
-    def __sync_with_db(self, push: bool):
+    def __sync_with_db(self, push: bool) -> None:
         '''
         Handle pushing updated versions of items onto DB.
         Prompts user to select from duplicates. 
@@ -755,7 +755,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return False
 
 
-    def __disconnect_from_db(self):
+    def __disconnect_from_db(self) -> None:
         '''End connection to DB'''
         # if db handle is already none
         if self.__db_handle != None:

@@ -118,13 +118,13 @@ class StatusBar(QtWidgets.QStatusBar):
         # setup and run thread for updating status
         self.__refresh_status()
 
-    def force_refresh(self):
+    def force_refresh(self) -> None:
         '''Forces Status Bar UI refresh'''
         self.__populate_status()
         QtWidgets.QApplication.processEvents()
 
     @QtCore.pyqtSlot()
-    def __refresh_status(self):
+    def __refresh_status(self) -> None:
         '''Periodically refresh status bar'''
         self.__populate_status()
          # call method again every tick of the app internal clock
@@ -132,7 +132,7 @@ class StatusBar(QtWidgets.QStatusBar):
         # print("Status bar refreshed!")
         QtCore.QTimer.singleShot(int(self.__refresh_interval*1000), self.__refresh_status)
 
-    def __populate_status(self):
+    def __populate_status(self) -> None:
         '''Handle populating status bar ui with target string(s)'''
         if (self.parentWidget().sub_status == "" or self.parentWidget().sub_status == None):
             self.showMessage(f'{self.parentWidget().version} | {self.parentWidget().status}')
@@ -147,7 +147,7 @@ class Table(QtWidgets.QTableWidget):
         self.working_data = {} # init dict for holding data containing changes
         self.last_edited_Row_Key = None # init last edited row var
 
-    def populate(self, reset: bool = False):
+    def populate(self, reset: bool = False) -> None:
         ''' Populates table with values from passed list of dicts'''
         '''TODO handle sorting on population'''
         if reset:
@@ -214,7 +214,7 @@ class Table(QtWidgets.QTableWidget):
         # print("Scans table populated! Num Cols: ", self.columnCount(),"Num Rows: ", self.rowCount())
     
     @QtCore.pyqtSlot(int, int)
-    def update_scans(self, row, col):
+    def update_scans(self, row, col) -> None:
         '''
         Update working data with new cell value.
         This is called when something is manually typed into cell.
@@ -372,7 +372,7 @@ class Table(QtWidgets.QTableWidget):
 
         #print('New scans: ', self.working_data)
 
-    def __save_changes(self):
+    def __save_changes(self) -> None:
         '''Save table changes to runtime scans dict'''
         if self.working_data != None:
             self.window().show_loading()
@@ -393,7 +393,7 @@ class Table(QtWidgets.QTableWidget):
             self.populate(True) # refresh table
 
     @QtCore.pyqtSlot()
-    def try_save_changes(self):
+    def try_save_changes(self) -> None:
         '''Show confirmation popup before saving changes'''
         # disable scan listen if on
         if self.window().hearing_scans:
@@ -406,7 +406,7 @@ class Table(QtWidgets.QTableWidget):
               on_reject=None)
     
     @QtCore.pyqtSlot()
-    def reset_table(self):
+    def reset_table(self) -> None:
         '''Resets the table to original values'''
         # disable scan listen if on
         if self.window().hearing_scans:
@@ -420,7 +420,7 @@ class Table(QtWidgets.QTableWidget):
                 parent=self)
     
     @QtCore.pyqtSlot()
-    def add_row(self):
+    def add_row(self) -> None:
         '''Add an empty scan table row'''
         previous_row_key = self.item(self.rowCount() - 1, 0)
         if  previous_row_key != None and previous_row_key.text() != ("" or None):
@@ -428,7 +428,7 @@ class Table(QtWidgets.QTableWidget):
             QtWidgets.QApplication.processEvents()
 
 
-    def __del_last_edited_row(self):
+    def __del_last_edited_row(self) -> None:
         '''Deletes the last edited row from table'''
         #target = self.findItems(self.last_edited_Row_Serial)
         #print("Delete target: " + target)
@@ -437,7 +437,7 @@ class Table(QtWidgets.QTableWidget):
 
 
     @QtCore.pyqtSlot()
-    def try_del_last_edited_row(self):
+    def try_del_last_edited_row(self) -> None:
         '''Show confirmation  pop-up for deleted last edited row'''
         if self.last_edited_Row_Key == None:
             # TODO show ok menu notifying to edit a row first
@@ -472,7 +472,7 @@ class Table(QtWidgets.QTableWidget):
         return None
     
 
-    def __register_invalid_scan(self):
+    def __register_invalid_scan(self) -> None:
         # disable scan listen so cursor doesnt stay at the bottom of the table
         self.window().disable_scan_listen()
 
