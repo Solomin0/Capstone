@@ -1,12 +1,14 @@
-from mysql import connector as sql_connector
-from PyQt6 import QtWidgets, QtCore
-from .uielements import InputWindow, ConfirmWindow, OkWindow, DBConnectWindow, OptionWindow
-from .MainAppUI import Ui_MainWindow
 from os import mkdir
 from os.path import isfile, isdir
 from json import loads, dumps
 from datetime import datetime
 from copy import deepcopy
+
+from mysql import connector as sql_connector
+from PyQt6 import QtWidgets, QtCore
+from .uielements import InputWindow, ConfirmWindow, OkWindow, DBConnectWindow, OptionWindow
+from .MainAppUI import Ui_MainWindow
+
 
 class MainWindow(QtWidgets.QMainWindow):
     '''Main window running ui'''

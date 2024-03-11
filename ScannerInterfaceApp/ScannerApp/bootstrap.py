@@ -1,6 +1,7 @@
-from PyQt6 import QtWidgets
 from sys import argv
+from PyQt6 import QtWidgets
 from UIWindows import MainWindow
+
 
 def boot() -> int:
     '''Start the application'''

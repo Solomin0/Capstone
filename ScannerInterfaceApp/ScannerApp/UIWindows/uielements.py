@@ -1,11 +1,13 @@
 '''Custom child classes of QT widgets so custom slots can be added'''
+from copy import deepcopy
+
 from PyQt6 import QtCore, QtWidgets
+
 from .ConfirmUI import Ui_DialogConfirm
 from .DBSyncLoginUI import Ui_DBSyncLogin
 from .OkUI import Ui_DialogOk
 from .BackupInputUI import Ui_BackupFileInput
 from.OptionsUI import Ui_DialogOptions
-from copy import deepcopy
 
 
 class PushButton(QtWidgets.QPushButton):
@@ -91,7 +93,6 @@ class OptionWindow(Popup):
 
             if auto_exec:
                 self.exec()
-
 ############ END CUSTOM POPUPS
 
      
