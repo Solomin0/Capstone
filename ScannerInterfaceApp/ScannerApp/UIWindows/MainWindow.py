@@ -769,7 +769,7 @@ class MainWindow(QtWidgets.QMainWindow):
                      )
     
 
-    def __parse_db_to_runtime(self, db_data: list[tuple]) -> dict[dict]:
+    def __parse_db_to_runtime(self, db_data: list[dict]) -> dict[dict]:
         '''Translate db data to locally stored runtime data'''
         if not self.db_connected: 
             OkWindow("Not connected to any database!",
