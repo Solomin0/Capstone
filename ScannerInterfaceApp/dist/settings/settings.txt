@@ -1,4 +1,4 @@
-# File generated at 03/05/2024 16:00
+# File generated at 03/11/2024 17:00
 #############################
 [
  "localhost",
@@ -6,5 +6,5 @@
  "alpha2",
  "ITEM",
  false,
- 0.5
+ 0.2
 ]

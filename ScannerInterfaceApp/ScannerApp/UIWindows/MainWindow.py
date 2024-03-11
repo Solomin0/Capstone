@@ -29,13 +29,13 @@ class MainWindow(QtWidgets.QMainWindow):
     # end application state fields
 
     # settings fields
-    _default_db_host = 'localhost'
+    _default_db_host = ''
     _default_db_port = ''
-    _default_db_name = 'alpha2'
-    _default_db_table = 'ITEM'
+    _default_db_name = ''
+    _default_db_table = ''
 
     auto_push_scans = False # whether app-side item data is pushed to db without a user comparison
-    __scan_polling_interval = 0.5
+    __scan_polling_interval = 0.0
     # end settings fields
 
     # properties
@@ -229,7 +229,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._default_db_name = "alpha2"
         self._default_db_table = 'ITEM'
         self.auto_push_scans = False
-        self.__scan_polling_interval = 0.1
+        self.__scan_polling_interval = 0.2
        
 
         self.save_settings()

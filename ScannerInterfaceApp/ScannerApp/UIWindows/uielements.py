@@ -450,7 +450,7 @@ class Table(QtWidgets.QTableWidget):
         ConfirmWindow("Would you like to delete the last edited row?\nEntry Key: " + self.last_edited_Row_Key, 
               "Confirm Delete Row", 
               True,
-              on_accept=lambda: self.__del_last_edited_row(),
+              on_accept=self.__del_last_edited_row,
               on_reject=None)
         
 
