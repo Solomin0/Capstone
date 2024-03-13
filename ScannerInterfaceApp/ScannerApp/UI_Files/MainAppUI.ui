@@ -253,7 +253,14 @@ color: &quot;Black&quot;;</string>
      </property>
      <addaction name="auto_push_scans"/>
     </widget>
+    <widget class="QMenu" name="menuScanning">
+     <property name="title">
+      <string>Scanning</string>
+     </property>
+     <addaction name="notify_scanned_exists"/>
+    </widget>
     <addaction name="menuDatabase_Sync"/>
+    <addaction name="menuScanning"/>
    </widget>
    <addaction name="menuSettings"/>
   </widget>
@@ -281,6 +288,14 @@ color: &quot;Black&quot;;</string>
   <action name="reset_Changes">
    <property name="text">
     <string>Reset Changes</string>
+   </property>
+  </action>
+  <action name="notify_scanned_exists">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Notify if Scanned Exists</string>
    </property>
   </action>
  </widget>
@@ -500,6 +515,22 @@ color: &quot;Black&quot;;</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>notify_scanned_exists</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_notify_existing(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>toggle_scan_listen()</slot>
@@ -508,5 +539,6 @@ color: &quot;Black&quot;;</string>
   <slot>sync_db_btn_clicked()</slot>
   <slot>set_auto_push(bool)</slot>
   <slot>on_closing()</slot>
+  <slot>set_notify_existing(bool)</slot>
  </slots>
 </ui>

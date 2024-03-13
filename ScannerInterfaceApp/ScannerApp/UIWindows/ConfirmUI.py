@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'UI_Files/ConfirmUI.ui'
+# Form implementation generated from reading ui file 'ScannerApp/UI_Files/ConfirmUI.ui'
 #
 # Created by: PyQt6 UI code generator 6.6.1
 #

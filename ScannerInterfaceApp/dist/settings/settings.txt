@@ -1,10 +1,20 @@
-# File generated at 03/11/2024 17:20
+# File generated at 03/13/2024 14:25
+#############################
+# Settings:
+# default host
+# default port (blank means default - 3306)
+# default db name
+# default db table
+# auto push scans
+# notify existing found
+# scan polling interval (in seconds)
 #############################
 [
  "localhost",
  "",
  "alpha2",
  "ITEM",
+ false,
  false,
  0.2
 ]

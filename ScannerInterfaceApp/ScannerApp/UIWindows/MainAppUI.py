@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'UI_Files/MainAppUI.ui'
+# Form implementation generated from reading ui file 'ScannerApp/UI_Files/MainAppUI.ui'
 #
 # Created by: PyQt6 UI code generator 6.6.1
 #
@@ -140,6 +140,8 @@ class Ui_MainWindow(object):
         self.menuSettings.setObjectName("menuSettings")
         self.menuDatabase_Sync = QtWidgets.QMenu(parent=self.menuSettings)
         self.menuDatabase_Sync.setObjectName("menuDatabase_Sync")
+        self.menuScanning = QtWidgets.QMenu(parent=self.menuSettings)
+        self.menuScanning.setObjectName("menuScanning")
         MainWindow.setMenuBar(self.menuBar)
         self.actionBackup_Scans = QtGui.QAction(parent=MainWindow)
         self.actionBackup_Scans.setObjectName("actionBackup_Scans")
@@ -151,8 +153,13 @@ class Ui_MainWindow(object):
         self.save_changes.setObjectName("save_changes")
         self.reset_Changes = QtGui.QAction(parent=MainWindow)
         self.reset_Changes.setObjectName("reset_Changes")
+        self.notify_scanned_exists = QtGui.QAction(parent=MainWindow)
+        self.notify_scanned_exists.setCheckable(True)
+        self.notify_scanned_exists.setObjectName("notify_scanned_exists")
         self.menuDatabase_Sync.addAction(self.auto_push_scans)
+        self.menuScanning.addAction(self.notify_scanned_exists)
         self.menuSettings.addAction(self.menuDatabase_Sync.menuAction())
+        self.menuSettings.addAction(self.menuScanning.menuAction())
         self.menuBar.addAction(self.menuSettings.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -168,6 +175,7 @@ class Ui_MainWindow(object):
         self.vs_add_row_btn.clicked.connect(MainWindow.disable_scan_listen) # type: ignore
         self.vs_sync_db_btn.clicked.connect(MainWindow.sync_db_btn_clicked) # type: ignore
         self.auto_push_scans.triggered['bool'].connect(MainWindow.set_auto_push) # type: ignore
+        self.notify_scanned_exists.triggered['bool'].connect(MainWindow.set_notify_existing) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -195,8 +203,10 @@ class Ui_MainWindow(object):
         self.vs_save_btn.setText(_translate("MainWindow", "Save"))
         self.menuSettings.setTitle(_translate("MainWindow", "Settings"))
         self.menuDatabase_Sync.setTitle(_translate("MainWindow", "Database Sync"))
+        self.menuScanning.setTitle(_translate("MainWindow", "Scanning"))
         self.actionBackup_Scans.setText(_translate("MainWindow", "Backup Scans"))
         self.auto_push_scans.setText(_translate("MainWindow", "Auto-Push Changes to Database"))
         self.save_changes.setText(_translate("MainWindow", "Save"))
         self.reset_Changes.setText(_translate("MainWindow", "Reset Changes"))
+        self.notify_scanned_exists.setText(_translate("MainWindow", "Notify if Scanned Exists"))
 from .uielements import MenuBar, PushButton, StackedWidget, StatusBar, Table

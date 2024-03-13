@@ -12,16 +12,6 @@ from .MainAppUI import Ui_MainWindow
 
 class MainWindow(QtWidgets.QMainWindow):
     '''Main window running ui'''
-     # public fields
-    scans = {} # dict of dicts where asset_tag_number is key
-    scan_entry_primary_key = 'asset_tag_number' # global reference for 
-    hearing_scans = False # whether app is listening for scans
-    scans_file_path = "scans//scans.txt"
-    settings_file_path = "settings//settings.txt"
-    file_heading = f'# File generated at {datetime.now().strftime('%m/%d/%Y %H:%M')}\n#############################\n'
-    invalid_chars = ['<', '>', '%', '@', '*', '\\', r'\'', r'\"']
-    # end public fields
-    
     # application state fields
     __app_title = 'Asset Scanner Application'
     __version_no = 'v0.0.1'
@@ -35,10 +25,21 @@ class MainWindow(QtWidgets.QMainWindow):
     _default_db_port = ''
     _default_db_name = ''
     _default_db_table = ''
-
+    notify_on_existing_found = False # whether app will notify user if existing entry found on scan
     auto_push_scans = False # whether app-side item data is pushed to db without a user comparison
     __scan_polling_interval = 0.0
     # end settings fields
+
+     # public fields
+    scans = {} # dict of dicts where asset_tag_number is key
+    scan_entry_primary_key = 'asset_tag_number' # global reference for 
+    hearing_scans = False # whether app is listening for scans
+    scans_file_path = "scans//scans.txt"
+    settings_file_path = "settings//settings.txt"
+    main_file_heading = f'# File generated at {datetime.now().strftime('%m/%d/%Y %H:%M')}\n#############################\n'
+    settings_file_heading = "# Settings:\n# default host\n# default port (blank means default - 3306)\n# default db name\n# default db table\n# auto push scans\n# notify existing found\n# scan polling interval (in seconds)\n#############################\n"
+    invalid_chars = ['<', '>', '%', '@', '*', '\\', r'\'', r'\"']
+    # end public fields
 
     # properties
     @property
@@ -80,7 +81,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_auto_push(self, value: bool) -> None:
         '''Set settings for auto-pushing scans of existing items onto database'''
         self.auto_push_scans = value
-  
+
+    @QtCore.pyqtSlot(bool)
+    def set_notify_existing(self, value: bool) -> None:
+        '''Set setting for notifying user when existing entry is scanned'''
+        self.notify_on_existing_found = value
+
 
     def __init__(self, *args, **kwargs) -> None:
         '''Main Window Initialization'''
@@ -94,7 +100,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # get settings from local stored file
         self.load_settings()
-        self.ui.auto_push_scans.setChecked(self.auto_push_scans) 
+
         # get scans from local storage
         self.read_scans()
 
@@ -161,11 +167,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 json = dumps(json, indent=1)
                 
                 # write scans to file including file heading
-                f.writelines(self.file_heading + json)
+                f.writelines(self.main_file_heading + json)
 
             else: # if scans dict is None or empty
                 # write empty file with file heading
-                f.writelines(self.file_heading)
+                f.writelines(self.main_file_heading)
 
         self.reset_sub_status()
 
@@ -231,6 +237,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._default_db_name = "alpha2"
         self._default_db_table = 'ITEM'
         self.auto_push_scans = False
+        self.notify_on_existing_found = False
         self.__scan_polling_interval = 0.2
        
 
@@ -275,8 +282,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._default_db_name = loaded_settings[2]
                     self._default_db_table = loaded_settings[3]
                     self.auto_push_scans = loaded_settings[4]
-                    self.__scan_polling_interval = loaded_settings[5]
+                    self.notify_on_existing_found = loaded_settings[5]
+                    self.__scan_polling_interval = loaded_settings[6]
 
+        self.ui.auto_push_scans.setChecked(self.auto_push_scans) 
+        self.ui.notify_scanned_exists.setChecked(self.notify_on_existing_found)
         self.reset_sub_status()
         
 
@@ -294,6 +304,7 @@ class MainWindow(QtWidgets.QMainWindow):
         json.append(self._default_db_name)
         json.append(self._default_db_table)
         json.append(self.auto_push_scans)
+        json.append(self.notify_on_existing_found)
         json.append(self.__scan_polling_interval)
 
         # convert payload to json - indented 1 space
@@ -301,7 +312,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         with open(self.settings_file_path , 'w+') as f:
             # write scans to file including file heading
-            f.writelines(self.file_heading + json)
+            f.writelines(self.main_file_heading + self.settings_file_heading + json)
 
         self.reset_sub_status()
         

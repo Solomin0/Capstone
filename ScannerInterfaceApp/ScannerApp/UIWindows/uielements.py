@@ -147,6 +147,7 @@ class Table(QtWidgets.QTableWidget):
         super().__init__(*args, **kwargs)
         self.working_data = {} # init dict for holding data containing changes
         self.last_edited_Row_Key = None # init last edited row var
+        self.__dup_notif = None # init existing entry found notification var
 
     def populate(self, reset: bool = False) -> None:
         ''' Populates table with values from passed list of dicts'''
@@ -293,9 +294,20 @@ class Table(QtWidgets.QTableWidget):
                 
                 if found_duplicate:
                     self.__register_invalid_scan()
-
+                    
                     # select current row to editing
                     self.setCurrentCell(duplicate_row, 0)
+
+                    if self.window().notify_on_existing_found:
+                    # notify user that existing entry found
+                        if self.__dup_notif != None:
+                            self.__dup_notif.close()
+                        self.__dup_notif = OkWindow(
+                            "Existing entry value found: " + new_value,
+                            "Existing entry found",
+                            False,
+                            None
+                        )
 
                      # clear out newly added row
                     # for column in range(self.columnCount()):

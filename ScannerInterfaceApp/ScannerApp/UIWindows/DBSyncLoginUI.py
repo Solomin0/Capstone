@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'UI_Files/DBSyncLoginUI.ui'
+# Form implementation generated from reading ui file 'ScannerApp/UI_Files/DBSyncLoginUI.ui'
 #
 # Created by: PyQt6 UI code generator 6.6.1
 #
