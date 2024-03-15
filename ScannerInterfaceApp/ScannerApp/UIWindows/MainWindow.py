@@ -734,6 +734,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 except sql_connector.DataError as e:
                     self.set_sub_status("Error during database push")
                     OkWindow(e.msg + '\nNo data was pushed.', "Error during push", True, None)
+                except Exception as e:
+                    self.set_sub_status("Error during database push")
+                    OkWindow(e.msg + '\nNo data was pushed.', "Error during push", True, None)
                 
                 cursor.close()
 
