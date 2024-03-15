@@ -728,6 +728,9 @@ class MainWindow(QtWidgets.QMainWindow):
                             True,
                             None
                             )
+                except sql_connector.IntegrityError as e:
+                    self.set_sub_status("Error during database push")
+                    OkWindow(e.msg + '\nNo data was pushed.', "Error during push", True, None)
                 except sql_connector.DataError as e:
                     self.set_sub_status("Error during database push")
                     OkWindow(e.msg + '\nNo data was pushed.', "Error during push", True, None)
