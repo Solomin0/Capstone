@@ -262,19 +262,19 @@ class Table(QtWidgets.QTableWidget):
         # if adding new row
         if row > len(scans_vals) - 1:
             new_entry_key = "0" + scans_vals[-1][self.window().scan_entry_primary_key]
-            # if not adding new row by editing serial_no
+            # if not adding new row by editing entry key
             if col != 0 and (self.item(row, col -1) == None or self.item(row, col-1).text() == (None or "")):
                 # clear current cell value
                 self.item(row, col).setText('')
-                # add placeholder serial number to row
+                # add placeholder entry key to row
                 self.setItem(row, 0, QtWidgets.QTableWidgetItem(new_entry_key))
                 # register table update
                 self.update_scans(row, 0)
                 return
-            elif col == 0: # if adding new row by editing serial_no
-                # if clearing serial number to blank
+            elif col == 0: # if adding new row by editing entry key
+                # if clearing entry key to blank
                 if new_value == "" or new_value == None:
-                    # set serial number of default value
+                    # set entry key of default value
                     self.item(row, col).setText(new_entry_key)
                     # register table update
                     self.update_scans(row, col)
@@ -283,10 +283,10 @@ class Table(QtWidgets.QTableWidget):
                 found_duplicate = False
                 duplicate_row = 0
                 # if new value is not blank
-                # check for duplicate serial numbers
-                for seral_no in self.working_data.keys():
+                # check for duplicate entry keys
+                for entry_key in self.working_data.keys():
                     # if duplicate found
-                    if new_value == seral_no:
+                    if new_value == entry_key:
                         found_duplicate = True
                         break
                     else:
@@ -365,7 +365,7 @@ class Table(QtWidgets.QTableWidget):
         
         last_edited = dict()
 
-        # if changing serial_number of same row
+        # if changing entry key of same row
         if col == 0 and targ_key != new_value:
             # copy over value to new key
             self.working_data[str(new_value)] = self.working_data[str(targ_key)].copy()
@@ -380,7 +380,7 @@ class Table(QtWidgets.QTableWidget):
         # update target cell with new value
         last_edited[str(targ_col)] = new_value
 
-        # cache last edited row's serial number
+        # cache last edited row's entry key
         self.last_edited_Row_Key = list(last_edited.items())[0][1]
 
         #print('New scans: ', self.working_data)
@@ -443,8 +443,6 @@ class Table(QtWidgets.QTableWidget):
 
     def __del_last_edited_row(self) -> None:
         '''Deletes the last edited row from table'''
-        #target = self.findItems(self.last_edited_Row_Serial)
-        #print("Delete target: " + target)
         del self.working_data[self.last_edited_Row_Key]
         self.populate()
 
