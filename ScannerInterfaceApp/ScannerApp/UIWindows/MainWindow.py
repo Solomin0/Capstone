@@ -285,6 +285,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.notify_on_existing_found = loaded_settings[5]
                     self.__scan_polling_interval = loaded_settings[6]
 
+        # map ui settings to their loaded values
         self.ui.auto_push_scans.setChecked(self.auto_push_scans) 
         self.ui.notify_scanned_exists.setChecked(self.notify_on_existing_found)
         self.reset_sub_status()
@@ -307,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):
         json.append(self.notify_on_existing_found)
         json.append(self.__scan_polling_interval)
 
-        # convert payload to json - indented 1 space
+        # convert serialization payload to json - indented 1 space
         json = dumps(json, indent=1)
 
         with open(self.settings_file_path , 'w+') as f:
