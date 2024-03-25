@@ -237,7 +237,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._default_db_name = "alpha2"
         self._default_db_table = 'ITEM'
         self.auto_push_scans = False
-        self.notify_on_existing_found = False
+        self.notify_on_existing_found = True
         self.__scan_polling_interval = 0.2
        
 
