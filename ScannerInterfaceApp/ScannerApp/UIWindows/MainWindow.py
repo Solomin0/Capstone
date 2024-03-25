@@ -1,3 +1,8 @@
+'''
+THIS SOFTWARE, ITS SOURCE CODE, AND ANY DISTRIBUTIONS THEREOF IS PROPERTY OF GEORGE MASON UNIVERSITY.
+AUTHOR : MARTIN HAYNESWORTH
+'''
+
 from os import mkdir
 from os.path import isfile, isdir
 from json import loads, dumps

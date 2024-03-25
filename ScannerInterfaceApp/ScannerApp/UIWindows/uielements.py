@@ -1,3 +1,8 @@
+'''
+THIS SOFTWARE, ITS SOURCE CODE, AND ANY DISTRIBUTIONS THEREOF IS PROPERTY OF GEORGE MASON UNIVERSITY.
+AUTHOR : MARTIN HAYNESWORTH
+'''
+
 '''Custom child classes of QT widgets so custom slots can be added'''
 from copy import deepcopy
 
