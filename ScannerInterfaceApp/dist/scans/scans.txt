@@ -1,4 +1,4 @@
-# File generated at 03/25/2024 16:14
+# File generated at 03/29/2024 16:04
 #############################
 [
  {
@@ -14208,7 +14208,7 @@
  },
  {
   "ASSET_TAG_NUMBER": "X0038",
-  "DESCRIPTION": "Undefined",
+  "DESCRIPTION": "Test",
   "ADDITIONAL_DESCRIPTION": "Undefined",
   "BUILDING_NUMBER": "Undefined",
   "SITE_USED": "Undefined",
@@ -14238,6 +14238,21 @@
  },
  {
   "ASSET_TAG_NUMBER": "X00383OJQ3",
+  "DESCRIPTION": "Undefined",
+  "ADDITIONAL_DESCRIPTION": "Undefined",
+  "BUILDING_NUMBER": "Undefined",
+  "SITE_USED": "Undefined",
+  "ASSIGNED_TO": "Undefined",
+  "ROOM_NUMBER": "Undefined",
+  "MANUEFACTURER": "Undefined",
+  "MODEL_NUMBER": "Undefined",
+  "PART_NUMBER": "Undefined",
+  "SERIAL_NUMBER": "Undefined",
+  "UTILIZATION_CODE": "A",
+  "CONDITION_CODE": "AU"
+ },
+ {
+  "ASSET_TAG_NUMBER": "GL135640",
   "DESCRIPTION": "Undefined",
   "ADDITIONAL_DESCRIPTION": "Undefined",
   "BUILDING_NUMBER": "Undefined",

@@ -19,7 +19,7 @@ class MainWindow(QtWidgets.QMainWindow):
     '''Main window running ui'''
     # application state fields
     __app_title = 'Asset Scanner Application'
-    __version_no = 'v0.0.1'
+    __version_no = 'v1.0'
     __status = "Uninitialized"
     __sub_status = ""
     __db_handle = None
@@ -649,7 +649,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     # if db has item entry with same asset tag number
                     if asset_tag_no in pull_data_keys:
-                        if self.auto_push_scans or yes_to_all:
+                        
+                        # check if any values in row are the same 
+                        is_match = True
+
+                        local_values = list(self.scans[asset_tag_no].values())
+                        db_values = list(pull_working_data[asset_tag_no].values())
+
+                        for i in range(len(local_values)):
+                            try:
+                                if db_values[i] is not None and local_values[i] != db_values[i]:
+                                    is_match = False
+                                    break
+                            except IndexError:
+                                is_match = False
+                                break
+
+                        if self.auto_push_scans or yes_to_all or is_match:
                             # replace entry in pull working data with app scans entry
                             push_scan()
                         else:
@@ -678,7 +694,6 @@ class MainWindow(QtWidgets.QMainWindow):
                                          )
                             
                     # if db does not already have item in it AND is a valid entry
-                    # TODO check if all NOT NULL fields have values in them
                     elif test_keys == None or len(self.scans[asset_tag_no].keys()) >= len(test_keys) - 2:
                         # copy item entry into working data
                         push_scan()

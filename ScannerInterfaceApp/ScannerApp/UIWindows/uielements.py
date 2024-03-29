@@ -219,7 +219,7 @@ class Table(QtWidgets.QTableWidget):
                 # place cell on table
                 self.setItem(i, j, cell)
         # print("Scans table populated! Num Cols: ", self.columnCount(),"Num Rows: ", self.rowCount())
-    
+   
     @QtCore.pyqtSlot(int, int)
     def update_scans(self, row, col) -> None:
         '''
@@ -372,12 +372,25 @@ class Table(QtWidgets.QTableWidget):
 
         # if changing entry key of same row
         if col == 0 and targ_key != new_value:
-            # copy over value to new key
-            self.working_data[str(new_value)] = self.working_data[str(targ_key)].copy()
-            # remove old key/value pair
-            self.working_data.pop(str(targ_key))
-            # cache new row entry as target row
-            last_edited = self.working_data[str(new_value)]
+            def on_confirm():
+                nonlocal new_value
+                nonlocal targ_key
+                nonlocal last_edited
+
+                # copy over value to new key
+                self.working_data[str(new_value)] = self.working_data[str(targ_key)].copy()
+                # remove old key/value pair
+                self.working_data.pop(str(targ_key))
+                # cache new row entry as target row
+                last_edited = self.working_data[str(new_value)]
+
+            ConfirmWindow(
+                "You are about to alter entry key " + targ_key + ".\nProceed?",
+                "Confirm entry key change",
+                True,
+                on_confirm,
+                None
+            )
         else:
             # cache existing row entry at target row
                 last_edited = self.working_data[str(targ_key)]

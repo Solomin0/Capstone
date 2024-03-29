@@ -7,8 +7,8 @@ from mysql import connector
 
 handle = connector.connect(
     host="localhost",
-    user="user1",
-    password="P@ssw0rd12",
+    user="u",
+    password="p",
     database="Alpha2"
 )
 
