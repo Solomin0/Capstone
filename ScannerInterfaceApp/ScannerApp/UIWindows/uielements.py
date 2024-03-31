@@ -276,7 +276,8 @@ class Table(QtWidgets.QTableWidget):
                 # register table update
                 self.update_scans(row, 0)
                 return
-            elif col == 0: # if adding new row by editing entry key
+            # if adding new row by editing entry key
+            elif col == 0: 
                 # if clearing entry key to blank
                 if new_value == "" or new_value == None:
                     # set entry key of default value
@@ -298,6 +299,7 @@ class Table(QtWidgets.QTableWidget):
                         duplicate_row += 1
                 
                 if found_duplicate:
+                    # remove scanned value from last row
                     self.__register_invalid_scan()
                     
                     # select current row to editing
@@ -313,23 +315,6 @@ class Table(QtWidgets.QTableWidget):
                             False,
                             None
                         )
-
-                     # clear out newly added row
-                    # for column in range(self.columnCount()):
-                    #     self.setItem(row, column, None)
-                    
-                    '''
-                    # init notification window
-                    dup_notif = OkWindow(
-                        "Cannot enter duplicate entry key.",
-                        "Duplicate entry key detected: " + new_value,
-                        True,
-                        None,
-                        False
-                    )
-                    # notify user
-                    dup_notif.exec()
-                    '''
                     return 
                 
                 # copy previous row's content to new row
