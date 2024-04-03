@@ -118,6 +118,9 @@ color: &quot;Black&quot;;</string>
                <kerning>true</kerning>
               </font>
              </property>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>false</bool>
+             </attribute>
              <attribute name="horizontalHeaderStretchLastSection">
               <bool>false</bool>
              </attribute>

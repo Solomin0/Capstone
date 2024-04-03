@@ -87,6 +87,7 @@ class Ui_MainWindow(object):
         self.vs_scans_table.setHorizontalHeaderItem(4, item)
         item = QtWidgets.QTableWidgetItem()
         self.vs_scans_table.setHorizontalHeaderItem(5, item)
+        self.vs_scans_table.horizontalHeader().setCascadingSectionResizes(False)
         self.vs_scans_table.horizontalHeader().setStretchLastSection(False)
         self.gridLayout_2.addWidget(self.vs_scans_table, 1, 0, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()

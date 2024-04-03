@@ -219,6 +219,9 @@ class Table(QtWidgets.QTableWidget):
                 # place cell on table
                 self.setItem(i, j, cell)
         # print("Scans table populated! Num Cols: ", self.columnCount(),"Num Rows: ", self.rowCount())
+        # resize all columns to show content
+        for i in range(self.columnCount() - 1):
+            self.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
    
     @QtCore.pyqtSlot(int, int)
     def update_scans(self, row, col) -> None:
